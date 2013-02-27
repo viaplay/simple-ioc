@@ -1,5 +1,5 @@
 {
-  "name": "simlpe-ioc",
+  "name": "simple-ioc",
   "version": "1.0.0",
   "description": "Simple Dependency Injection for node.js",
   "main": "ioc.js",
