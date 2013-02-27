@@ -1,6 +1,6 @@
 ( function() {
 	var logLevels = { FATAL: 0, ERROR: 1, WARNING: 2, INFO: 3, DEBUG: 4 },
-		logLevel = logLevels.DEBUG,
+		logLevel = logLevels.FATAL,
 		basePath = require('path').dirname(module.parent.filename)
 		registeredComponents = {},
 		loadedComponents = {};
