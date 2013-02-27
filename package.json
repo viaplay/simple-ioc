@@ -1,0 +1,22 @@
+{
+  "name": "simlpe-ioc",
+  "version": "1.0.0",
+  "description": "Simple Dependency Injection for node.js",
+  "main": "ioc.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/viaplay/simple-ioc.git"
+  },
+  "keywords": [
+    "IoC",
+    "Dependency",
+    "Injection"
+  ],
+  "author": "Joakim J. Rapp, Viaplay",
+  "license": "BSD",
+  "readmeFilename": "README.md",
+  "gitHead": "cf000ad2b360e7956a8378008c736196347b5cbd"
+}
