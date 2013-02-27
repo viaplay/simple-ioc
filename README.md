@@ -5,9 +5,9 @@ Simple Dependency Injection for node.js
 
 
 
-# node-uuid
+# simple-ioc
 
-Simple, fast generation of [RFC4122](http://www.ietf.org/rfc/rfc4122.txt) UUIDS.
+Simple dependency injection
 
 Features:
 
