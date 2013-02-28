@@ -52,8 +52,8 @@
 			return getRegistered( name );
 	};
 
-	var getRegisteredParameterNames = function( name, omitReadyCallback ) {
-		var func = getRegisteredSafe( name, 'getRegisteredParameterNames' );
+	var getRegisteredParameterNames = function( nameOrFunc, omitReadyCallback ) {
+		var func = typeof( nameOrFunc ) == 'function' : nameOrFunc ? getRegisteredSafe( nameOrFunc, 'getRegisteredParameterNames' );
 		var result = [];
 		func.toString().match( /function\s+\w*\s*\((.*?)\)/ )[1].split( /\s*,\s*/ )
 			.map( function( parameter ) { return parameter.trim(); } )

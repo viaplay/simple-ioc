@@ -12,8 +12,7 @@
   },
   "keywords": [
     "IoC",
-    "Dependency",
-    "Injection"
+    "Dependency Injection"
   ],
   "author": "Joakim J. Rapp, Viaplay",
   "license": "BSD",
