@@ -1,16 +1,18 @@
 ( function() {
 	var logLevels = { FATAL: 0, ERROR: 1, WARNING: 2, INFO: 3, DEBUG: 4 },
+		logNames = [ 'FATAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG' ],
+		logColors = [ '\033[30m\033[41m', '\033[31m', '\033[33m', '\033[37m', '\033[37m' ],
+		resetColor = '\033[0m',
 		logLevel = logLevels.FATAL,
 		basePath = require('path').dirname(module.parent.filename)
 		registeredComponents = {},
 		loadedComponents = {};
 
 	var logFunction = function( level, title, message ) {
-		var type = 'DEBUG';
-		for( var name in logLevels )
-			if( level == logLevels[ name ] )
-				type = name;
-		console.log( ' ' + type + new Array( 9 - type.length ).join( ' ' ) + title + ':', new Array( 25 - title.length ).join( ' ' ), message );
+		var name = logNames[level], color = logColors[level], output = [ '   ' ];
+		output.push( color + name + new Array( 9 - name.length ).join( ' ' ) + resetColor );
+		output.push( title + ':', new Array( 25 - title.length ).join( ' ' ) );
+		console.log( output.join( '' ), message );
 	};
 
 	var logMessage = function( level, title, message ) {
