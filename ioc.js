@@ -184,9 +184,9 @@
 	var autoRegister = function( path ) {
 		var fs = require( 'fs' );
 		logMessage( logLevels.DEBUG, 'Auto registering', path );
-		if( fs.existsSync( path ) ) {
-			if( fs.lstatSync( path ).isDirectory() ) {
-				fs.readdirSync( path ).forEach( function( name ) {
+		if( fs.existsSync( basePath + '/' + path ) ) {
+			if( fs.lstatSync( basePath + '/' + path ).isDirectory() ) {
+				fs.readdirSync( basePath + '/' + path ).forEach( function( name ) {
 					var insertSlash = path.indexOf( '/', path.length - 1 ) >= 0 ? '' : '/';
 					autoRegister( path + insertSlash + name );
 				} );
@@ -200,18 +200,10 @@
 			}			
 		}
 		else {
-			logMessage( logLevels.WARNING, 'Could not find path', 'searching...' );
-			if( fs.existsSync( path + '.js' ) ) {
-				logMessage( logLevels.INFO, 'Auto register found', path + '.js' );
-				autoRegister( path + '.js' );				
-			}
-			else if( fs.existsSync( basePath + '/' + path ) ) {
-				logMessage( logLevels.INFO, 'Auto register found', basePath + '/' + path );
-				autoRegister( basePath + '/' + path );
-			}
-			else if( fs.existsSync( basePath + '/' + path + '.js' ) ) {
-				logMessage( logLevels.INFO, 'Auto register found', basePath + '/' + path + '.js' );
-				autoRegister( basePath + '/' + path + '.js' );
+			logMessage( logLevels.WARNING, 'Could not find path', 'trying .js' );
+			if( fs.existsSync( basePath + '/' + path + '.js' ) ) {
+				logMessage( logLevels.INFO, 'Found', path + '.js' );
+				autoRegister( path + '.js' );
 			}
 			else
 				logMessage( logLevels.FATAL, 'Searching failed', 'exiting...' );
