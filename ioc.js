@@ -166,7 +166,8 @@
 			var registeredNames = Object.keys( registeredComponents );
 			if( registeredNames.length == 0 ) {
 				logMessage( logLevels.INFO, 'Done', 'All resolved' );
-				callback();
+				if( callback )
+					inject( callback );
 			}
 			else {
 				var resolvableName = getNextResolvable( registeredNames );
@@ -223,10 +224,15 @@
 		registeredComponents = {};
 		loadedComponents = {};
 		return ioc;
-	}
+	};
+	var setLogFunction = function( func ) {
+		logFunction = func;
+		return ioc;
+	};
 
 	var ioc = {
 		setLogLevel: setLogLevel,
+		setLogFunction: setLogFunction,
 		register: register,
 		autoRegister: autoRegister,
 		start: start,
