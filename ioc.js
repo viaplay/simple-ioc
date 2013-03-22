@@ -44,7 +44,10 @@
 		logMessage( logLevels.INFO, 'Loaded', name );
 	};
 	var registerComponent = function( name, path ) {
-		registeredComponents[name] = require( basePath + '/' + path );
+		path = path.trim();
+		if( ( path.indexOf( '.' ) == 0 ) || ( path.indexOf( '/' ) == 0 ) )
+			path = basePath + '/' + path;
+		registeredComponents[name] = require( path );
 		logMessage( logLevels.DEBUG, 'Regestering', name )
 	}
 	var getRegisteredSafe = function( name, callerName ) {
