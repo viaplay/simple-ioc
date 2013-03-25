@@ -255,6 +255,7 @@
 		setLogLevel: setLogLevel,
 		setLogFunction: setLogFunction,
 		register: register,
+		registerRequired: registerRequired,
 		autoRegister: autoRegister,
 		start: start,
 		inject: inject,
