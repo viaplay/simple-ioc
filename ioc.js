@@ -190,7 +190,7 @@
 	var autoRegister = function( path, alternativeBasePath ) {
 		alternativeBasePath = alternativeBasePath || basePath;
 		var fs = require( 'fs' );
-		logMessage( logLevels.DEBUG, 'Auto registering', path );
+		logMessage( logLevels.DEBUG, 'Auto registering', alternativeBasePath + '/' + path );
 		if( fs.existsSync( alternativeBasePath + '/' + path ) ) {
 			if( fs.lstatSync( alternativeBasePath + '/' + path ).isDirectory() ) {
 				fs.readdirSync( alternativeBasePath + '/' + path ).forEach( function( name ) {
