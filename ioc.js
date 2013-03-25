@@ -227,6 +227,7 @@
 	var reset = function() {
 		registeredComponents = {};
 		loadedComponents = {};
+		register( 'ioc', ioc );
 		return ioc;
 	};
 	var setLogFunction = function( func ) {
