@@ -206,7 +206,7 @@
 			Error.prepareStackTrace = function( _, stack ) { return stack };
 			var stack = ( new Error() ).stack;
 			Error.prepareStackTrace = originalPrepareStackTrace;
-			while( !stack[0].receiver.filename )
+			while( ( !stack[0] || !stack[0].receiver.filename ) )
 				stack.shift();
 			if( fs.existsSync( path.join( path.dirname( stack[0].receiver.filename ), relativePath ) ) )
 				result = path.join( path.dirname( stack[0].receiver.filename ), relativePath );
