@@ -4,7 +4,7 @@
 		logColors = [ '\033[30m\033[41m', '\033[31m', '\033[33m', '\033[37m', '\033[37m' ],
 		resetColor = '\033[0m',
 		logLevel = logLevels.FATAL,
-		basePath = require('path').dirname(module.parent.filename)
+		basePath = require( 'path' ).dirname( module.parent.filename )
 		registeredComponents = {},
 		loadedComponents = {};
 
@@ -22,13 +22,17 @@
 			process.exit( 1 );
 	};
 
-	var register = function( name, pathOrLoaded, alternativeBasePath ) {
+	var register = function( name, pathOrLoaded ) {
 		if( typeof( pathOrLoaded ) == 'string' )
-			registerComponent( name, pathOrLoaded, alternativeBasePath );
+			registerComponent( name, getFullPath( pathOrLoaded ) );
 		else
 			loadComponent( name, pathOrLoaded );
 		return ioc;
 	};
+	var registerRequired = function( name, required ) {
+		registeredComponents[name] = required;
+		return ioc;
+	}
 
 	var getLoaded = function( name ) { return loadedComponents[ name ]; }
 	var getRegistered = function( name ) { return registeredComponents[ name ]; }
@@ -43,10 +47,7 @@
 			logMessage( logLevels.WARNING, 'Load failed', name + ' did not return anything' );
 		logMessage( logLevels.INFO, 'Loaded', name );
 	};
-	var registerComponent = function( name, path, alternativeBasePath ) {
-		path = path.trim();
-		if( ( path.indexOf( '.' ) == 0 ) || ( path.indexOf( '/' ) == 0 ) )
-			path = ( alternativeBasePath || basePath ) + '/' + path;
+	var registerComponent = function( name, path ) {
 		registeredComponents[name] = require( path );
 		logMessage( logLevels.DEBUG, 'Regestering', name )
 	}
@@ -187,34 +188,49 @@
 		}
 		recursive();
 	};
-	var autoRegister = function( path, alternativeBasePath ) {
-		alternativeBasePath = alternativeBasePath || basePath;
-		var fs = require( 'fs' );
-		logMessage( logLevels.DEBUG, 'Auto registering', alternativeBasePath + '/' + path );
-		if( fs.existsSync( alternativeBasePath + '/' + path ) ) {
-			if( fs.lstatSync( alternativeBasePath + '/' + path ).isDirectory() ) {
-				fs.readdirSync( alternativeBasePath + '/' + path ).forEach( function( name ) {
-					var insertSlash = path.indexOf( '/', path.length - 1 ) >= 0 ? '' : '/';
-					autoRegister( path + insertSlash + name, alternativeBasePath );
-				} );
-			} 
-			else {
-				var name = path.split( '/' );
-				name = name[ name.length - 1 ];
-				var parts = name.split( '.' );
-				var identifier = parts.splice( 0, parts.length - 1 ).join( '' );
-				register( identifier, path, alternativeBasePath );
-			}			
-		}
+
+	var getFullPath = function( relativePath ) {
+		var path = require( 'path' ),
+			fs = require( 'fs' ),
+			result;
+		if( fs.existsSync( relativePath ) )
+			result = relativePath;
+		else if( fs.existsSync( relativePath + '.js' ) )
+			result = relativePath + '.js';
+		else if( fs.existsSync( path.join( basePath, relativePath ) ) )
+			result = path.join( basePath, relativePath );
+		else if( fs.existsSync( path.join( basePath, relativePath + '.js' ) ) )
+			result = path.join( basePath, relativePath + '.js' );
 		else {
-			logMessage( logLevels.WARNING, 'Could not find path', 'trying .js' );
-			if( fs.existsSync( alternativeBasePath + '/' + path + '.js' ) ) {
-				logMessage( logLevels.INFO, 'Found', path + '.js' );
-				autoRegister( path + '.js', alternativeBasePath );
-			}
+			var originalPrepareStackTrace = Error.prepareStackTrace;
+			Error.prepareStackTrace = function( _, stack ) { return stack };
+			var stack = ( new Error() ).stack;
+			Error.prepareStackTrace = originalPrepareStackTrace;
+			while( !stack[0].receiver.filename )
+				stack.shift();
+			if( fs.existsSync( path.join( path.dirname( stack[0].receiver.filename ), relativePath ) ) )
+				result = path.join( path.dirname( stack[0].receiver.filename ), relativePath );
+			if( fs.existsSync( path.join( path.dirname( stack[0].receiver.filename ), relativePath + '.js' ) ) )
+				result = path.join( path.dirname( stack[0].receiver.filename ), relativePath + '.js' );
 			else
-				logMessage( logLevels.FATAL, 'Searching failed', 'exiting...' );
+				logMessage( logLevels.FATAL, 'Could not find', relativePath );
 		}
+		console.log( 'XXX: ', result );
+		return path.resolve( result );
+	};
+
+	var autoRegister = function( relativePath ) {
+		var path = require( 'path' ),
+			fs = require( 'fs' );
+		logMessage( logLevels.DEBUG, 'Auto registering', relativePath );
+		var fullPath = getFullPath( relativePath );
+		if( fs.lstatSync( fullPath ).isDirectory() ) {
+			fs.readdirSync( fullPath ).forEach( function( name ) {
+				autoRegister( path.join( fullPath, name ) );
+			} );
+		}
+		else
+			registerComponent( path.basename( fullPath, path.extname( fullPath ) ), fullPath );
 		return ioc;
 	};
 	var setLogLevel = function( level ) {
