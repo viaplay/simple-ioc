@@ -22,9 +22,9 @@
 			process.exit( 1 );
 	};
 
-	var register = function( name, pathOrLoaded ) {
+	var register = function( name, pathOrLoaded, alternativeBasePath ) {
 		if( typeof( pathOrLoaded ) == 'string' )
-			registerComponent( name, pathOrLoaded );
+			registerComponent( name, pathOrLoaded, alternativeBasePath );
 		else
 			loadComponent( name, pathOrLoaded );
 		return ioc;
@@ -43,10 +43,10 @@
 			logMessage( logLevels.WARNING, 'Load failed', name + ' did not return anything' );
 		logMessage( logLevels.INFO, 'Loaded', name );
 	};
-	var registerComponent = function( name, path ) {
+	var registerComponent = function( name, path, alternativeBasePath ) {
 		path = path.trim();
 		if( ( path.indexOf( '.' ) == 0 ) || ( path.indexOf( '/' ) == 0 ) )
-			path = basePath + '/' + path;
+			path = ( alternativeBasePath || basePath ) + '/' + path;
 		registeredComponents[name] = require( path );
 		logMessage( logLevels.DEBUG, 'Regestering', name )
 	}
@@ -187,14 +187,15 @@
 		}
 		recursive();
 	};
-	var autoRegister = function( path ) {
+	var autoRegister = function( path, alternativeBasePath ) {
+		alternativeBasePath = alternativeBasePath || basePath;
 		var fs = require( 'fs' );
 		logMessage( logLevels.DEBUG, 'Auto registering', path );
-		if( fs.existsSync( basePath + '/' + path ) ) {
-			if( fs.lstatSync( basePath + '/' + path ).isDirectory() ) {
-				fs.readdirSync( basePath + '/' + path ).forEach( function( name ) {
+		if( fs.existsSync( alternativeBasePath + '/' + path ) ) {
+			if( fs.lstatSync( alternativeBasePath + '/' + path ).isDirectory() ) {
+				fs.readdirSync( alternativeBasePath + '/' + path ).forEach( function( name ) {
 					var insertSlash = path.indexOf( '/', path.length - 1 ) >= 0 ? '' : '/';
-					autoRegister( path + insertSlash + name );
+					autoRegister( path + insertSlash + name, alternativeBasePath );
 				} );
 			} 
 			else {
@@ -202,14 +203,14 @@
 				name = name[ name.length - 1 ];
 				var parts = name.split( '.' );
 				var identifier = parts.splice( 0, parts.length - 1 ).join( '' );
-				register( identifier, path );
+				register( identifier, path, alternativeBasePath );
 			}			
 		}
 		else {
 			logMessage( logLevels.WARNING, 'Could not find path', 'trying .js' );
-			if( fs.existsSync( basePath + '/' + path + '.js' ) ) {
+			if( fs.existsSync( alternativeBasePath + '/' + path + '.js' ) ) {
 				logMessage( logLevels.INFO, 'Found', path + '.js' );
-				autoRegister( path + '.js' );
+				autoRegister( path + '.js', alternativeBasePath );
 			}
 			else
 				logMessage( logLevels.FATAL, 'Searching failed', 'exiting...' );
