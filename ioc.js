@@ -215,8 +215,9 @@
 			else
 				logMessage( logLevels.FATAL, 'Could not find', relativePath );
 		}
-		console.log( 'XXX: ', result );
-		return path.resolve( result );
+		result = path.resolve( result )
+		logMessage( logLevels.DEBUG, 'getFullPathResult', result );
+		return result;
 	};
 
 	var autoRegister = function( relativePath ) {
