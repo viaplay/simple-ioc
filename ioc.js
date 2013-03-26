@@ -193,27 +193,27 @@
 		var path = require( 'path' ),
 			fs = require( 'fs' ),
 			result;
-		if( fs.existsSync( relativePath ) )
+		if( ( relativePath.indexOf( '/' ) == 0 ) && fs.existsSync( relativePath ) )
 			result = relativePath;
-		else if( fs.existsSync( relativePath + '.js' ) )
-			result = relativePath + '.js';
-		else if( fs.existsSync( path.join( basePath, relativePath ) ) )
-			result = path.join( basePath, relativePath );
-		else if( fs.existsSync( path.join( basePath, relativePath + '.js' ) ) )
-			result = path.join( basePath, relativePath + '.js' );
 		else {
-			var originalPrepareStackTrace = Error.prepareStackTrace;
-			Error.prepareStackTrace = function( _, stack ) { return stack };
-			var stack = ( new Error() ).stack;
-			Error.prepareStackTrace = originalPrepareStackTrace;
-			while( ( !stack[0] || !stack[0].receiver.filename ) )
-				stack.shift();
-			if( fs.existsSync( path.join( path.dirname( stack[0].receiver.filename ), relativePath ) ) )
-				result = path.join( path.dirname( stack[0].receiver.filename ), relativePath );
-			if( fs.existsSync( path.join( path.dirname( stack[0].receiver.filename ), relativePath + '.js' ) ) )
-				result = path.join( path.dirname( stack[0].receiver.filename ), relativePath + '.js' );
+			var localBasePath = '',
+				stackTrace = ( new Error() ).stack.split( '\n' );
+			stackTrace.shift();
+			while( ( localBasePath.length == 0 ) && ( stackTrace.length > 0 ) ) {
+				var row = stackTrace.shift().trim();
+				if( row.indexOf( 'simple-ioc/ioc.js:' ) < 0 )
+					localBasePath = path.dirname( row.substring( row.indexOf( '(' ) + 1, row.indexOf( ':' ) ) );
+			}
+			if( fs.existsSync( path.join( localBasePath, relativePath ) ) )
+				result = path.join( localBasePath, relativePath );
+			else if( fs.existsSync( path.join( localBasePath, relativePath + '.js' ) ) )
+				result = path.join( localBasePath, relativePath + '.js' );
+			else if( fs.existsSync( path.join( basePath, relativePath ) ) )
+				result = path.join( basePath, relativePath );
+			else if( fs.existsSync( path.join( basePath, relativePath + '.js' ) ) )
+				result = path.join( basePath, relativePath + '.js' );
 			else
-				logMessage( logLevels.FATAL, 'Could not find', relativePath );
+				logMessage( logLevels.FATAL, 'Could not find', relativePath );			
 		}
 		result = path.resolve( result )
 		logMessage( logLevels.DEBUG, 'getFullPathResult', result );
