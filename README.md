@@ -77,28 +77,81 @@ function( level, title, message )
 
 Registers a component and returns the ioc.
 
+### ioc.registerRequired( name, function )
+
+Registers a required component and returns the ioc.
+
+Example:
+```javascript
+ioc.registerRequired( 'module_from_other_project', require( 'module_from_other_project_in_node_modules' ) );
+```
+
 ### ioc.autoRegister( path )
 
 Automatically registers a component or a path with several components using filenames as name and returns the ioc.
+
+Example:
+```javascript
+ioc.autoRegister( './lib/' );
+```
+
+vill register all .js files under lib folder.
 
 ### ioc.start( [func] )
 
 Resolves all registered components and optionally injects a function.
 
+Example:
+```javascript
+ioc.start( function( settings, packageInfo ) {
+	...some code that is depending on settings and packageInfo...
+} );
+```
+
+Start can be called again if additional components are registered after start.
+
 ### ioc.inject( [func] )
 
-Injects a function.
+Injects a function. Normally only used in tests
+
+Example:
+```javascript
+ioc.inject( function( settings, packageInfo ) {
+	...some code that is depending on settings and packageInfo...
+} );
+```
+
+Inject is intended to be used only in tests.
+
+Note: Inject does not resolve or load registered components. The method assumes ``` start() ``` was called before injection of registered components.
 
 ### ioc.getLoaded( name )
 
 Gets a loaded component by name.
 
+Example:
+```javascript
+var settings = ioc.getLoaded( 'settings' );
+```
+getLoaded is intended to be used only in tests.
+
+Note: getLoaded does not resolve or load registered components. The method assumes ``` start() ``` was called before getLoaded of registered components.
+
 ### ioc.reset()
 
 Resets the ioc, for testing purposes.
 
+Example:
+```javascript
+	ioc.reset();
+```
+
+reset is intended to be used only in tests.
+
 ## Release notes
 
-### 1.1.2
+### 1.1.12
+
+
 
 
