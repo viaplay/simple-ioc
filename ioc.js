@@ -220,6 +220,14 @@
 		return result;
 	};
 
+	var validFileEndings = [
+		'.js'
+	];
+
+	var isValidFileType = function( path ) {
+		return validFileEndings.indexOf( require( 'path' ).extname( path ) ) >= 0;
+	};
+
 	var autoRegister = function( relativePath ) {
 		var path = require( 'path' ),
 			fs = require( 'fs' );
@@ -230,7 +238,7 @@
 				autoRegister( path.join( fullPath, name ) );
 			} );
 		}
-		else
+		else if( isValidFileType( fullPath ) )
 			registerComponent( path.basename( fullPath, path.extname( fullPath ) ), fullPath );
 		return ioc;
 	};
