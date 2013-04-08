@@ -94,14 +94,14 @@
 				return false;
 		return true;
 	};
-	var isResolvableWhithoutCallback = function( name ) {
+	var isResolvableWithoutCallback = function( name ) {
 		if( isLoaded( name ) ) return true;
 		else if( !isRegistered( name ) ) return false;
 		else if( needsCallback( name ) ) return false;
 		else {
 			var parameterNames = getRegisteredParameterNames( name, true );
 			for( var i = 0 ; i < parameterNames.length ; i++ )
-				if( !isResolvableWhithoutCallback( parameterNames[i] ) )
+				if( !isResolvableWithoutCallback( parameterNames[i] ) )
 					return false;
 			return true;
 		}
@@ -140,7 +140,7 @@
 		if( !hasRegisteredAllDependenciesLoaded( name ) ) {
 			logMessage( logLevels.FATAL, 'Resolve failed', 'Not all dependencies loaded (' + name + ')' );
 		}
-		else if( isResolvableWhithoutCallback( name ) ) {
+		else if( isResolvableWithoutCallback( name ) ) {
 			callback( resolveWithoutCallback( name ) );
 		}
 		else {
