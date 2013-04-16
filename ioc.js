@@ -48,8 +48,12 @@
 		logMessage( logLevels.INFO, 'Loaded', name );
 	};
 	var registerComponent = function( name, path ) {
-		registeredComponents[name] = require( path );
-		logMessage( logLevels.DEBUG, 'Regestering', name )
+		if( registeredComponents[name] )
+			logMessage( logLevels.WARNING, 'Same name registered', path + ' ignored' );
+		else {
+			registeredComponents[name] = require( path );
+			logMessage( logLevels.DEBUG, 'Regestering', name );
+		}
 	}
 	var getRegisteredSafe = function( name, callerName ) {
 		if( !isRegistered( name ) ) {
