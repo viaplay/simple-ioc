@@ -4,7 +4,7 @@
 		logColors = [ '\033[30m\033[41m', '\033[31m', '\033[33m', '\033[37m', '\033[37m' ],
 		resetColor = '\033[0m',
 		logLevel = logLevels.FATAL,
-		basePath = require( 'path' ).dirname( module.parent.filename )
+		basePath = require( 'path' ).dirname( module.parent.filename ),
 		registeredComponents = {},
 		loadedComponents = {};
 
