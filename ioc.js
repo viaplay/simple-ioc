@@ -144,6 +144,7 @@
 	};
 	var resolve = function( name, callback ) {
 		if( typeof( registeredComponents[ name ] ) != 'function' ) {
+			logMessage( logLevels.INFO, 'Not injectable', 'Component not a function, just loading (' + name + ')' );
 			callback( loadComponent( name, registeredComponents[ name ] ) );
 		}
 		else if( !hasRegisteredAllDependenciesLoaded( name ) ) {
