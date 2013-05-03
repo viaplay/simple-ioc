@@ -39,13 +39,15 @@
 	var isLoaded = function( name ) { return getLoaded( name ) ? true : false; }
 	var isRegistered = function( name ) { return getRegistered( name ) ? true : false; }
 	var isRegisteredOrLoaded = function( name ) { return isLoaded( name ) || isRegistered( name ); }
-	var loadComponent = function( name, loaded ) { 
-		loadedComponents[ name ] = loaded;
+	var loadComponent = function( name, loaded ) {
 		if( isRegistered( name ) )
 			delete registeredComponents[ name ];
-		if( !loaded )
-			logMessage( logLevels.WARNING, 'Load failed', name + ' did not return anything' );
-		logMessage( logLevels.INFO, 'Loaded', name );
+		if( loaded ) {
+			loadedComponents[ name ] = loaded;
+			logMessage( logLevels.INFO, 'Loaded', name );
+		} else {
+			logMessage( logLevels.INFO, 'Only injected', name + ' did not return anything' );
+		}
 	};
 	var registerComponent = function( name, path ) {
 		if( registeredComponents[name] )
@@ -141,7 +143,10 @@
 		registered.apply( this, params );
 	};
 	var resolve = function( name, callback ) {
-		if( !hasRegisteredAllDependenciesLoaded( name ) ) {
+		if( typeof( registeredComponents[ name ] ) != 'function' ) {
+			callback( loadComponent( name, registeredComponents[ name ] ) );
+		}
+		else if( !hasRegisteredAllDependenciesLoaded( name ) ) {
 			logMessage( logLevels.FATAL, 'Resolve failed', 'Not all dependencies loaded (' + name + ')' );
 		}
 		else if( isResolvableWithoutCallback( name ) ) {
