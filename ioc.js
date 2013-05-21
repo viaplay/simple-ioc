@@ -7,7 +7,8 @@
 		basePath = require( 'path' ).dirname( module.parent.filename ),
 		registeredComponents = {},
 		loadedComponents = {},
-		startedCallback;
+		startedCallback,
+		started = false;
 
 	var logFunction = function( level, title, message ) {
 		var name = logNames[level], color = logColors[level], output = [ '   ' ];
@@ -183,6 +184,7 @@
 			if( registeredNames.length === 0 ) {
 				logMessage( logLevels.INFO, 'Done', 'All resolved' );
 				if( callback ) {
+					started = true;
 					inject( callback );
 					if( startedCallback )
 						inject( startedCallback );
@@ -277,6 +279,8 @@
 	};
 	var setStartedCallback = function( func ) {
 		startedCallback = func;
+		if( started )
+			inject( startedCallback );
 		return ioc;
 	};
 
