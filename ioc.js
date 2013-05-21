@@ -6,7 +6,8 @@
 		logLevel = logLevels.FATAL,
 		basePath = require( 'path' ).dirname( module.parent.filename ),
 		registeredComponents = {},
-		loadedComponents = {};
+		loadedComponents = {},
+		startedCallback;
 
 	var logFunction = function( level, title, message ) {
 		var name = logNames[level], color = logColors[level], output = [ '   ' ];
@@ -18,7 +19,7 @@
 	var logMessage = function( level, title, message ) {
 		if( level <= logLevel )
 			logFunction( level, title, typeof( message ) == 'function' ? message() : message );
-		if( level == 0 )
+		if( level === 0 )
 			process.exit( 1 );
 	};
 
@@ -32,13 +33,13 @@
 	var registerRequired = function( name, required ) {
 		registeredComponents[name] = required;
 		return ioc;
-	}
+	};
 
-	var getLoaded = function( name ) { return loadedComponents[ name ]; }
-	var getRegistered = function( name ) { return registeredComponents[ name ]; }
-	var isLoaded = function( name ) { return getLoaded( name ) ? true : false; }
-	var isRegistered = function( name ) { return getRegistered( name ) ? true : false; }
-	var isRegisteredOrLoaded = function( name ) { return isLoaded( name ) || isRegistered( name ); }
+	var getLoaded = function( name ) { return loadedComponents[ name ]; };
+	var getRegistered = function( name ) { return registeredComponents[ name ]; };
+	var isLoaded = function( name ) { return getLoaded( name ) ? true : false; };
+	var isRegistered = function( name ) { return getRegistered( name ) ? true : false; };
+	var isRegisteredOrLoaded = function( name ) { return isLoaded( name ) || isRegistered( name ); };
 	var loadComponent = function( name, loaded ) {
 		if( isRegistered( name ) )
 			delete registeredComponents[ name ];
@@ -56,7 +57,7 @@
 			registeredComponents[name] = require( path );
 			logMessage( logLevels.DEBUG, 'Regestering', name );
 		}
-	}
+	};
 	var getRegisteredSafe = function( name, callerName ) {
 		if( !isRegistered( name ) ) {
 			logMessage( logLevels.FATAL, 'Not registered', callerName + '( ' + name + ' )' );
@@ -138,7 +139,7 @@
 		};
 		var params = getRegisteredParameterNames( name ).map( function( parameterName ) {
 			return parameterName == 'readyCallback' ?
-				whenLoaded : 
+				whenLoaded :
 				getLoaded( parameterName );
 		} );
 		registered.apply( this, params );
@@ -179,10 +180,13 @@
 	var start = function( callback ) {
 		var recursive = function() {
 			var registeredNames = Object.keys( registeredComponents );
-			if( registeredNames.length == 0 ) {
+			if( registeredNames.length === 0 ) {
 				logMessage( logLevels.INFO, 'Done', 'All resolved' );
-				if( callback )
+				if( callback ) {
 					inject( callback );
+					if( startedCallback )
+						inject( startedCallback );
+				}
 			}
 			else {
 				var resolvableName = getNextResolvable( registeredNames );
@@ -196,7 +200,7 @@
 					logMessage( logLevels.FATAL, 'Unresolvable', unresolvable.component + '( ' + unresolvable.dependency + ' )' );
 				}
 			}
-		}
+		};
 		recursive();
 	};
 
@@ -204,13 +208,13 @@
 		var path = require( 'path' ),
 			fs = require( 'fs' ),
 			result;
-		if( ( relativePath.indexOf( '/' ) == 0 ) && fs.existsSync( relativePath ) )
+		if( ( relativePath.indexOf( '/' ) === 0 ) && fs.existsSync( relativePath ) )
 			result = relativePath;
 		else {
 			var localBasePath = '',
 				stackTrace = ( new Error() ).stack.split( '\n' );
 			stackTrace.shift();
-			while( ( localBasePath.length == 0 ) && ( stackTrace.length > 0 ) ) {
+			while( ( localBasePath.length === 0 ) && ( stackTrace.length > 0 ) ) {
 				var row = stackTrace.shift().trim();
 				if( row.indexOf( 'simple-ioc/ioc.js:' ) < 0 )
 					localBasePath = path.dirname( row.substring( row.indexOf( '(' ) + 1, row.indexOf( ':' ) ) );
@@ -224,9 +228,9 @@
 			else if( fs.existsSync( path.join( basePath, relativePath + '.js' ) ) )
 				result = path.join( basePath, relativePath + '.js' );
 			else
-				logMessage( logLevels.FATAL, 'Could not find', relativePath );			
+				logMessage( logLevels.FATAL, 'Could not find', relativePath );
 		}
-		result = path.resolve( result )
+		result = path.resolve( result );
 		logMessage( logLevels.DEBUG, 'getFullPathResult', result );
 		return result;
 	};
@@ -256,7 +260,7 @@
 	var setLogLevel = function( level ) {
 		logLevel = level;
 		return ioc;
-	};	
+	};
 	var inject = function( func ) {
 		func.apply( this, getRegisteredParameterNames( func ).map( function( parameterName ) { return getLoaded( parameterName ); } ) );
 	};
@@ -270,6 +274,9 @@
 		logFunction = func;
 		return ioc;
 	};
+	var setStartedCallback = function( func ) {
+		startedCallback = func;
+	};
 
 	var ioc = {
 		setLogLevel: setLogLevel,
@@ -280,7 +287,8 @@
 		start: start,
 		inject: inject,
 		getLoaded: getLoaded,
-		reset: reset
+		reset: reset,
+		setStartedCallback: setStartedCallback
 	};
 	register( 'ioc', ioc );
 
