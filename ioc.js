@@ -202,6 +202,7 @@
 			}
 		};
 		recursive();
+		return ioc;
 	};
 
 	var getFullPath = function( relativePath ) {
@@ -276,6 +277,7 @@
 	};
 	var setStartedCallback = function( func ) {
 		startedCallback = func;
+		return ioc;
 	};
 
 	var ioc = {
