@@ -8,7 +8,8 @@
 		registeredComponents = {},
 		loadedComponents = {},
 		startedCallback,
-		started = false;
+		started = false,
+		settings;
 
 	var logFunction = function( level, title, message ) {
 		var name = logNames[level], color = logColors[level], output = [ '   ' ];
@@ -283,6 +284,33 @@
 			inject( startedCallback );
 		return ioc;
 	};
+	var setSettings = function( name, data ) {
+		settings = data;
+		register( name, data );
+		return ioc;
+	};
+	var matchesSetting = function( settingsKey, conditionalValue ) {
+		var settingsParts = settingsKey.split( '.' );
+		var setting = settings;
+		while( settingsParts.length > 0 && setting !== undefined ) {
+			var part = settingsParts.shift();
+			setting = setting[ part ];
+		}
+		if( setting === undefined )
+			logMessage( logLevels.DEBUG, 'No settingsKey match', settingsKey );
+		var matches = setting == conditionalValue;
+		if( matches )
+			logMessage( logLevels.DEBUG, 'Value matches setting', settingsKey );
+		return matches;
+	};
+	var conditionalAutoRegister = function( settingsKey, conditionalValue, path ) {
+		logMessage( logLevels.INFO, 'ConditionalAutoRegister', settingsKey );
+		return ( matchesSetting( settingsKey, conditionalValue ) ) ? autoRegister( path ) : ioc;
+	};
+	var conditionalRegister = function( settingsKey, conditionalValue, name, pathOrLoaded ) {
+		logMessage( logLevels.INFO, 'ConditionalRegister', settingsKey );
+		return ( matchesSetting( settingsKey, conditionalValue ) ) ? register( name, pathOrLoaded ) : ioc;
+	};
 
 	var ioc = {
 		setLogLevel: setLogLevel,
@@ -294,7 +322,10 @@
 		inject: inject,
 		getLoaded: getLoaded,
 		reset: reset,
-		setStartedCallback: setStartedCallback
+		setStartedCallback: setStartedCallback,
+		setSettings: setSettings,
+		conditionalAutoRegister: conditionalAutoRegister,
+		conditionalRegister: conditionalRegister
 	};
 	register( 'ioc', ioc );
 
