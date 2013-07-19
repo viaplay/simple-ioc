@@ -311,6 +311,10 @@
 		logMessage( logLevels.INFO, 'ConditionalRegister', settingsKey );
 		return ( matchesSetting( settingsKey, conditionalValue ) ) ? register( name, pathOrLoaded ) : ioc;
 	};
+	var conditionalRegisterRequired = function( settingsKey, conditionalValue, name, required ) {
+		logMessage( logLevels.INFO, 'ConditionalRegisterRequired', settingsKey );
+		return ( matchesSetting( settingsKey, conditionalValue ) ) ? registerRequired( name, required ) : ioc;
+	};
 
 	var ioc = {
 		setLogLevel: setLogLevel,
@@ -325,7 +329,8 @@
 		setStartedCallback: setStartedCallback,
 		setSettings: setSettings,
 		conditionalAutoRegister: conditionalAutoRegister,
-		conditionalRegister: conditionalRegister
+		conditionalRegister: conditionalRegister,
+		conditionalRegisterRequired: conditionalRegisterRequired
 	};
 	register( 'ioc', ioc );
 
