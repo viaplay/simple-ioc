@@ -1,6 +1,6 @@
 {
   "name": "simple-ioc",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "Simple Dependency Injection for node.js",
   "main": "ioc.js",
   "scripts": {

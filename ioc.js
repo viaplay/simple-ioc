@@ -71,13 +71,18 @@
 		var func = typeof( nameOrFunc ) == 'function' ? nameOrFunc : getRegisteredSafe( nameOrFunc, 'getRegisteredParameterNames' );
 		var result = [];
 		var funcString = func.toString().replace( /\n/g, ' ' );
-		funcString.match( /function\s+\w*\s*\((.*?)\)/ )[1].split( /\s*,\s*/ )
-			.map( function( parameter ) { return parameter.trim(); } )
-			.forEach( function( parameter ) {
-				if( parameter.length > 0 && ( ( !omitReadyCallback ) || ( parameter != 'readyCallback' ) ) )
-					result.push( parameter );
-			} );
-		return result;
+		try {
+			funcString.match( /function\s+\w*\s*\((.*?)\)/ )[1].split( /\s*,\s*/ )
+				.map( function( parameter ) { return parameter.trim(); } )
+				.forEach( function( parameter ) {
+					if( parameter.length > 0 && ( ( !omitReadyCallback ) || ( parameter != 'readyCallback' ) ) )
+						result.push( parameter );
+				} );
+			return result;
+		}
+		catch( e ) {
+			logMessage( logLevels.FATAL, 'File malformatted', nameOrFunc );
+		}
 	};
 	var needsCallback = function( name ) {
 		if( isLoaded( name ) )
