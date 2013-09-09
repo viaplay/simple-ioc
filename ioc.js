@@ -14,7 +14,7 @@
 	var logFunction = function( level, title, message ) {
 		var name = logNames[level], color = logColors[level], output = [ '   ' ];
 		output.push( color + name + resetColor + new Array( 9 - name.length ).join( ' ' ) );
-		output.push( title + ':', new Array( 25 - title.length ).join( ' ' ) );
+		output.push( title + ':', new Array( 30 - title.length ).join( ' ' ) );
 		console.log( output.join( '' ), message );
 	};
 
