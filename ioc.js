@@ -39,7 +39,7 @@
 	},
 	reset = function() {
 		container.reset();
-		container.register( 'ioc', ioc );
+		register( 'ioc', ioc );
 		return ioc;
 	},
 	setLogLevel = function( level ) {
