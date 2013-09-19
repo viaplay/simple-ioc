@@ -12,7 +12,7 @@ module.exports = function( path, fs, log, basePath ) {
 			var localBasePath = '',
 				stackTrace = ( new Error() ).stack.split( '\n' );
 			stackTrace.shift();
-			while( /*( localBasePath.length === 0 ) && */( stackTrace.length > 0 ) ) {
+			while( ( localBasePath.length === 0 ) && ( stackTrace.length > 0 ) ) {
 				var row = stackTrace.shift().trim();
 				if( row.indexOf( '/simple-ioc/' ) < 0 )
 					localBasePath = path.dirname( row.substring( row.indexOf( '(' ) + 1, row.indexOf( ':' ) ) );
