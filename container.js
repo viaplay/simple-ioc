@@ -11,7 +11,15 @@ module.exports = function( log ) {
 				singleton: singleton,
 				resolved: false
 			};
-			components[ name ].dependencies = getDependencies( name );
+			var dependencies = getDependencies( name );
+			components[ name ].dependencies = dependencies;
+			var unusedDependencies = [];
+			dependencies.forEach( function( dependency ) {
+				if( fn.toString().split( dependency ).length <= 2 )
+					unusedDependencies.push( dependency );
+			} );
+			if( unusedDependencies.length > 0 )
+				log.warning( 'container', 'Possible unused dependencies for', name + '(' + unusedDependencies.join( ', ' ) + ')' );
 			log.debug( 'container', 'registered', name );
 		}
 	},
