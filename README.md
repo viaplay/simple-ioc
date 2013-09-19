@@ -51,6 +51,7 @@ Sets the level of logging and returns the ioc
 - `2`: WARNING
 - `3`: INFO
 - `4`: DEBUG
+- `5`: TRACE
 
 Example:
 
