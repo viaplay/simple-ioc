@@ -5,6 +5,7 @@
 		container = require( './container.js' )( log ),
 		files = require( './files.js' )( path, fs, log, require( 'path' ).dirname( module.parent.filename ) ),
 		startedCallback,
+		started = false,
 
 	register = function( name, pathOrLoaded, lifecycleTransient ) {
 		if( typeof( pathOrLoaded ) == 'string' )
@@ -26,6 +27,7 @@
 		log.info( 'ioc', 'Starting by resolving all' );
 		container.resolveAll( function() {
 			log.info( 'ioc', 'All resolved' );
+			started = true;
 			if( callback )
 				container.inject( callback );
 			if( startedCallback )
@@ -48,6 +50,8 @@
 	},
 	setStartedCallback = function( fn ) {
 		startedCallback = fn;
+		if( started )
+			inject( startedCallback );
 		return ioc;
 	},
 	setSettings = function( name, data ) {
