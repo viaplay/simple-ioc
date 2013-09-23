@@ -123,7 +123,7 @@ module.exports = function( log ) {
 	resolve = function( name, callback ) {
 		var component = components[ name ];
 		if ( component === undefined )
-			callback( undefined );
+			log.fatal( 'container', 'Unresolvable, not registered', name );
 		else if( component.instance )
 			callback( component.instance );
 		else {
