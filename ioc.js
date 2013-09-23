@@ -41,6 +41,7 @@
 	},
 	reset = function() {
 		container.reset();
+		settings.reset();
 		register( 'ioc', ioc );
 		return ioc;
 	},

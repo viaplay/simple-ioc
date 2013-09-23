@@ -122,7 +122,9 @@ module.exports = function( log ) {
 	},
 	resolve = function( name, callback ) {
 		var component = components[ name ];
-		if( component.instance )
+		if ( component === undefined )
+			callback( undefined );
+		else if( component.instance )
 			callback( component.instance );
 		else {
 			log.debug( 'container', 'resolving', name );
