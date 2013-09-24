@@ -41,8 +41,6 @@ module.exports = function( settings, amqp ) {
 ```
 
 ## Methods
-
-setLogLevel
 ---------------------------------------
 <a name="setLogLevel" />
 ### setLogLevel( level )
@@ -54,6 +52,8 @@ NOTE: All FATAL errors also exists the application.
 __Arguments__
 
 * level - minimum level
+
+NOTE: Possible values:
 - `0`: FATAL
 - `1`: ERROR
 - `2`: WARNING
