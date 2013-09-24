@@ -41,14 +41,13 @@ module.exports = function( settings, amqp ) {
 ```
 
 ## Concepts
----------------------------------------
 Files that are injectable normally looks like this:
 
 ```javascript
 module.exports = function( dependency1, dependency2... ) {
 	// code	
 };
-```javascript
+```
 
 Components that needs to be loaded asynchroniously can, by convension in the ioc, depend on a ```readyCallback```, what ever that is used as the first parameter to this function will be loaded in the ioc. 
 
@@ -58,8 +57,7 @@ module.exports = function( readyCallback ) {
 		readyCallback( { val: 4 } );
 	}, 1000 );
 };
-```javascript
-
+```
 
 ## Methods
 ---------------------------------------
