@@ -42,134 +42,18 @@ module.exports = function( settings, amqp ) {
 
 ## Methods
 
-### ioc.setLogLevel( logLevel )
-
-Sets the level of logging and returns the ioc
-
-- `0`: FATAL
-- `1`: ERROR
-- `2`: WARNING
-- `3`: INFO
-- `4`: DEBUG
-- `5`: TRACE
-
-Example:
-
-```javascript
-ioc.setLogLevel( 1 );
-```
-Only outputs FATAL and ERROR logs.
-
-NOTE: FATAL errors exists the application.
-
-### ioc.setLogFunction( logFunction )
-
-Sets the a log function and returns the ioc.
-
-By default simple-ioc logs to console, but can be changed.
-
-Simple-ioc calls the function with the following parameters:
-
-```javascript
-function( level, title, message )
-```
-
-
-
-
-
-
-
-
-### ioc.register( name, pathOrLoaded )
-
-Registers a component and returns the ioc.
-
-### ioc.registerRequired( name, function )
-
-Registers a required component and returns the ioc.
-
-Example:
-```javascript
-ioc.registerRequired( 'module_from_other_project', require( 'module_from_other_project_in_node_modules' ) );
-```
-
-### ioc.autoRegister( path )
-
-Automatically registers a component or a path with several components using filenames as name and returns the ioc.
-
-Example:
-```javascript
-ioc.autoRegister( './lib/' );
-```
-
-vill register all .js files under lib folder.
-
-### ioc.start( [func] )
-
-Resolves all registered components and optionally injects a function.
-
-Example:
-```javascript
-ioc.start( function( settings, packageInfo ) {
-	...some code that is depending on settings and packageInfo...
-} );
-```
-
-Start can be called again if additional components are registered after start.
-
-### ioc.inject( [func] )
-
-Injects a function. Normally only used in tests
-
-Example:
-```javascript
-ioc.inject( function( settings, packageInfo ) {
-	...some code that is depending on settings and packageInfo...
-} );
-```
-
-Inject is intended to be used only in tests.
-
-Note: Inject does not resolve or load registered components. The method assumes ``` start() ``` was called before injection of registered components.
-
-### ioc.getLoaded( name )
-
-Gets a loaded component by name.
-
-Example:
-```javascript
-var settings = ioc.getLoaded( 'settings' );
-```
-getLoaded is intended to be used only in tests.
-
-Note: getLoaded does not resolve or load registered components. The method assumes ``` start() ``` was called before getLoaded of registered components.
-
-### ioc.reset()
-
-Resets the ioc, for testing purposes.
-
-Example:
-```javascript
-	ioc.reset();
-```
-
-reset is intended to be used only in tests.
-
-## Release notes
-
-### 1.1.12
-
-
-
-
-
+setLogLevel
+---------------------------------------
+<a name="setLogLevel" />
 ### setLogLevel( level )
 
-Sets the level of logging and returns the ioc.
+Sets the minimum level of logs to cause an output, this only affects the ioc's logging.
 
-Valid values are:
+NOTE: All FATAL errors also exists the application.
 
+__Arguments__
+
+* level - minimum level
 - `0`: FATAL
 - `1`: ERROR
 - `2`: WARNING
@@ -177,45 +61,15 @@ Valid values are:
 - `4`: DEBUG
 - `5`: TRACE
 
-Example:
+__Returns__
 
-```javascript
-ioc.setLogLevel( 1 );
+The ioc
+
+__Example__
+
+```js
+ioc.setLogLevel( 1 ); // Will cause the ioc to only outputs FATAL and ERROR logs.
 ```
-Will cause the ioc to only outputs FATAL and ERROR logs.
-
-NOTE: All FATAL errors also exists the application.
-
-
-
-### register( name, pathOrLoaded, lifecycleTransient )
-
-Sets the level of logging and returns the ioc.
-
-Valid values are:
-
-- `0`: FATAL
-- `1`: ERROR
-- `2`: WARNING
-- `3`: INFO
-- `4`: DEBUG
-- `5`: TRACE
-
-Example:
-
-```javascript
-ioc.setLogLevel( 1 );
-```
-Will cause the ioc to only outputs FATAL and ERROR logs.
-
-NOTE: All FATAL errors also exists the application.
-
-
-v
-
-
-
-
 ---------------------------------------
 <a name="register" />
 ### register( name, pathOrLoaded, lifecycleTransient )
@@ -387,16 +241,16 @@ ioc.setSettings( 'settings', { environment: 'test' } )
 	} );
 ```
 ---------------------------------------
-<a name="conditionalRegister" />
-### conditionalRegister( settingsKey, conditionalValue, name, pathOrLoaded )
+<a name="conditionalAutoRegister" />
+### conditionalAutoRegister( settingsKey, conditionalValue, path )
 
-Reads settings, compares value to conditionalValue, if match perfoms a register
+Reads settings, compares value to conditionalValue, if match perfoms a autoRegister
 
 __Arguments__
 
 * settingsKey - String to search for in settings, .-notated
 * conditionalValue - value to compare against
-* path - Path to send to autoRegister if match.
+* path - Path to folder or file.
 
 __Returns__
 
@@ -408,22 +262,74 @@ __Example__
 ioc.setSettings( 'settings', { environment: 'test' } )
 	.conditionalAutoRegister( 'evironment', 'test', './lib' ); // Sould autoRegister './lib'
 ```
+---------------------------------------
+<a name="conditionalRegister" />
+### conditionalRegister( settingsKey, conditionalValue, name, pathOrLoaded, lifecycleTransient )
 
+Reads settings, compares value to conditionalValue, if match perfoms a register
 
+__Arguments__
 
+* settingsKey - String to search for in settings, .-notated
+* conditionalValue - value to compare against
+* name - The name to identify the component when injecting
+* pathOrLoaded - Can either be a filepath, which will be required by the ioc and injected, all other types (objects, functions etc) will just be loaded into the ioc.
+* lifecycleTransient - Boolean, if set, the comopnent will be re-injected, when ever used as a dependency.
 
+__Returns__
 
+The ioc
 
-		conditionalAutoRegister: conditionalAutoRegister,
-		conditionalRegister: conditionalRegister,
-		conditionalRegisterRequired: conditionalRegisterRequired,
-		setWaitingWarningTime: setWaitingWarningTime
+__Example__
 
+```js
+ioc.setSettings( 'settings', { environment: 'test' } )
+	.conditionalAutoRegister( 'evironment', 'test', 'some_component', require( 'some_component' ) ); // Sould register 'some_component'
+```
+---------------------------------------
+<a name="conditionalRegisterRequired" />
+### conditionalRegister( settingsKey, conditionalValue, name, required, lifecycleTransient )
 
+Reads settings, compares value to conditionalValue, if match perfoms a registerRequired
 
+__Arguments__
 
+* settingsKey - String to search for in settings, .-notated
+* conditionalValue - value to compare against
+* name - The name to identify the component when injecting
+* required - function that can be injected
+* lifecycleTransient - Boolean, if set, the comopnent will be re-injected, when ever used as a dependency.
 
+__Returns__
 
+The ioc
 
+__Example__
 
+```js
+ioc.setSettings( 'settings', { environment: 'test' } )
+	.conditionalRegisterRequired( 'evironment', 'test', 'some_component', function( settings ) { return 'test'; } ); // Sould register 'some_component'
+```
+---------------------------------------
+<a name="setWaitingWarningTime" />
+### setWaitingWarningTime( milliseconds )
 
+Sets the amount of milliseconds the ioc waits for a component with a readyCallback to callback before it starts to warn
+
+__Arguments__
+
+* milliseconds - amount of milliseconds
+
+__Returns__
+
+The ioc
+
+__Example__
+
+```js
+ioc.setWaitingWarningTime( 1000 ); // Will start to log warnings if components take more than 1 seconds to callback
+```
+
+## Release notes
+
+### 2.0.5

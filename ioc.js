@@ -64,13 +64,13 @@
 		log.trace( 'ioc', 'ConditionalAutoRegister', settingsKey );
 		return ( settings.matchesSetting( settingsKey, conditionalValue ) ) ? autoRegister( path ) : ioc;
 	},
-	conditionalRegister = function( settingsKey, conditionalValue, name, pathOrLoaded ) {
+	conditionalRegister = function( settingsKey, conditionalValue, name, pathOrLoaded, lifecycleTransient ) {
 		log.trace( 'ioc', 'ConditionalRegister', settingsKey );
-		return ( settings.matchesSetting( settingsKey, conditionalValue ) ) ? register( name, pathOrLoaded ) : ioc;
+		return ( settings.matchesSetting( settingsKey, conditionalValue ) ) ? register( name, pathOrLoaded, lifecycleTransient ) : ioc;
 	},
-	conditionalRegisterRequired = function( settingsKey, conditionalValue, name, required ) {
+	conditionalRegisterRequired = function( settingsKey, conditionalValue, name, required, lifecycleTransient ) {
 		log.trace( 'ioc', 'ConditionalRegisterRequired', settingsKey );
-		return ( settings.matchesSetting( settingsKey, conditionalValue ) ) ? registerRequired( name, required ) : ioc;
+		return ( settings.matchesSetting( settingsKey, conditionalValue ) ) ? registerRequired( name, required, lifecycleTransient ) : ioc;
 	},
 	setWaitingWarningTime = function( milliseconds ) {
 		container.setWaitingWarningTime( milliseconds );
