@@ -30,7 +30,7 @@ module.exports = function( log ) {
 	settings = {
 		set: set,
 		reset: reset,
-		getSettings: getSetting,
+		getSetting: getSetting,
 		matchesSetting: matchesSetting
 	};
 	return settings;
