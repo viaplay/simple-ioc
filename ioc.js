@@ -70,7 +70,6 @@
 		if( settingsValue ) {
 			if( basePath.indexOf( '/', basePath.length - 1 ) < 0 )
 				basePath += '/';
-			console.log( 'XXXXXXXXXX', basePath + settingsValue);
 			return autoRegister( basePath + settingsValue );
 		}
 		else return ioc;
