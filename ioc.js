@@ -64,6 +64,16 @@
 		log.trace( 'ioc', 'ConditionalAutoRegister', settingsKey );
 		return ( settings.matchesSetting( settingsKey, conditionalValue ) ) ? autoRegister( path ) : ioc;
 	},
+	conditionalPathAutoRegister = function( settingsKey, basePath ) {
+		log.trace( 'ioc', 'ConditionalPathAutoRegister', settingsKey );
+		var settingsValue = settings.getSetting( settingsKey );
+		if( settingsValue ) {
+			if( basePath.indexOf( '/', basePath.length - 1 ) < 0 )
+				basePath += '/';
+			return autoRegister( basePath + settingsValue );
+		}
+		else return ioc;
+	},
 	conditionalRegister = function( settingsKey, conditionalValue, name, pathOrLoaded, lifecycleTransient ) {
 		log.trace( 'ioc', 'ConditionalRegister', settingsKey );
 		return ( settings.matchesSetting( settingsKey, conditionalValue ) ) ? register( name, pathOrLoaded, lifecycleTransient ) : ioc;

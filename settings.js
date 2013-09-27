@@ -1,8 +1,6 @@
 module.exports = function( log ) {
-
-	var settingsObj;
-
-	function getSetting( settingsKey ) {
+	var settingsObj,
+	getSetting = function( settingsKey ) {
 		var settingsParts = settingsKey.split( '.' );
 		var setting = settingsObj;
 		while( settingsParts.length > 0 && setting !== undefined ) {
@@ -10,9 +8,8 @@ module.exports = function( log ) {
 			setting = setting[ part ];
 		}
 		return setting;
-	}
-
-	var set = function( obj ) {
+	},
+	set = function( obj ) {
 		if ( settingsObj )
 			log.debug( 'settings', 'Replacing settings with new value' );
 		settingsObj = obj;
@@ -33,6 +30,7 @@ module.exports = function( log ) {
 	settings = {
 		set: set,
 		reset: reset,
+		getSettings: getSetting,
 		matchesSetting: matchesSetting
 	};
 	return settings;
