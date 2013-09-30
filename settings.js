@@ -11,7 +11,7 @@ module.exports = function( log ) {
 	},
 	set = function( obj ) {
 		if ( settingsObj )
-			log.debug( 'settings', 'Replacing settings with new value' );
+			log.debug( 'Replacing settings with new value' );
 		settingsObj = obj;
 	},
 	reset = function() {
@@ -19,19 +19,26 @@ module.exports = function( log ) {
 	},
 	matchesSetting = function( settingsKey, conditionalValue ) {
 		var setting = getSetting( settingsKey );
-		log.debug( 'settings', 'settings', settingsObj );
 		if( setting === undefined )
-			log.debug( 'settings', 'No settingsKey match', settingsKey + ' (' + conditionalValue + ')' );
+			log.debug( 'No settingsKey match', settingsKey + ' (' + conditionalValue + ')' );
 		var matches = setting == conditionalValue;
 		if( matches )
-			log.debug( 'settings', 'Value matches setting', settingsKey + ' (' + conditionalValue + ')' );
+			log.debug( 'Value matches setting', settingsKey + ' (' + conditionalValue + ')' );
 		return matches;
+	},
+	getSettings = function() {
+		return settingsObj;
+	},
+	setLogger = function( logger ) {
+		log = logger;
 	};
 	settings = {
 		set: set,
 		reset: reset,
 		getSetting: getSetting,
-		matchesSetting: matchesSetting
+		matchesSetting: matchesSetting,
+		getSettings: getSettings,
+		setLogger: setLogger
 	};
 	return settings;
 };

@@ -4,7 +4,7 @@ module.exports = function( path, fs, log, basePath ) {
 		return validFileExtensions.indexOf( path.extname( fullPath ) ) >= 0;
 	},
 	getFullPath = function( relativePath ) {
-		log.trace( 'files', 'Resolving full path', relativePath );
+		log.trace( 'files', 'Resolving full path', relativePath, undefined );
 		var result;
 		if( ( relativePath.indexOf( '/' ) === 0 ) && fs.existsSync( relativePath ) )
 			result = relativePath;
@@ -29,11 +29,11 @@ module.exports = function( path, fs, log, basePath ) {
 				log.fatal( 'files', 'Could not find file', relativePath, true );
 		}
 		result = path.resolve( result );
-		log.debug( 'files', 'Full path resolved', result );
+		log.debug( 'files', 'Full path resolved', result, undefined );
 		return result;
 	},
 	findValidFiles = function( relativePath, fn ) {
-		log.trace( 'files', 'Finding files in', relativePath );
+		log.trace( 'files', 'Finding files in', relativePath, undefined );
 		var fullPath = getFullPath( relativePath );
 		if( fs.lstatSync( fullPath ).isDirectory() )
 			fs.readdirSync( fullPath ).forEach( function( name ) {
@@ -41,10 +41,14 @@ module.exports = function( path, fs, log, basePath ) {
 			} );
 		else if( isValidFileType( fullPath ) )
 			fn( path.basename( fullPath, path.extname( fullPath ) ), fullPath );
+	},
+	setLogger = function( logger ) {
+		log = logger;
 	};
 	return {
 		getFullPath: getFullPath,
 		isValidFileType: isValidFileType,
-		findValidFiles: findValidFiles
+		findValidFiles: findValidFiles,
+		setLogger: setLogger
 	};
 };

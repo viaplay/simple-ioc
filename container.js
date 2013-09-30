@@ -1,10 +1,14 @@
 module.exports = function( log ) {
 	var components = {},
 		waitingId, waitingTs, waiting = [], waitingWarningTime = 2000,
+		reservedDependencies = [ 'readyCallback', 'iocCallback', 'iocParentName' ],
+	isReservedDependency = function( name ) {
+		return reservedDependencies.indexOf( name ) >= 0;
+	},
 	register = function( name, fn, singleton ) {
-		log.trace( 'container', 'registering', name );
+		log.trace( 'registering', name );
 		if( components[ name ] )
-			log.fatal( 'container', 'Same name was already registered', name, true );
+			log.fatal( 'Same name was already registered', name );
 		else {
 			components[ name ] = {
 				fn: fn,
@@ -13,25 +17,29 @@ module.exports = function( log ) {
 			};
 			var dependencies = getDependencies( name );
 			components[ name ].dependencies = dependencies;
+			if( ( dependencies.indexOf( 'iocParentName' ) >= 0 ) && singleton ) {
+				log.error( 'Cannot register a component as singleton if it has iocParentName as dependency, switching to transient', name );
+				components[ name ].singleton = false;
+			}
 			var unusedDependencies = [];
 			dependencies.forEach( function( dependency ) {
 				if( fn.toString().split( dependency ).length <= 2 )
 					unusedDependencies.push( dependency );
 			} );
 			if( unusedDependencies.length > 0 )
-				log.warning( 'container', 'Possible unused dependencies for', name + '(' + unusedDependencies.join( ', ' ) + ')' );
-			log.debug( 'container', 'registered', name );
+				log.warning( 'Possible unused dependencies for', name + '(' + unusedDependencies.join( ', ' ) + ')' );
+			log.debug( 'registered', name );
 		}
 	},
 	load = function( name, instance ) {
 		if( components[ name ] )
-			log.fatal( 'container', 'Same name was already registered', name, true );
+			log.fatal( 'Same name was already registered', name );
 		else {
 			components[ name ] = {
 				instance: instance,
 				resolved: true
 			};
-			log.info( 'container', 'loaded', name );
+			log.info( 'loaded', name );
 		}
 	},
 	getDependencies = function( name, fn ) {
@@ -51,19 +59,19 @@ module.exports = function( log ) {
 								if( parameter.length > 0 )
 									dependencies.push( parameter );
 							} );
-						log.trace( 'container', 'dependencies for ' + name, dependencies.join( ', ' ) );
+						log.trace( 'dependencies for ' + name, dependencies.join( ', ' ) );
 						return dependencies;
 					}
 					catch( ex ) {
-						log.fatal( 'container', 'function malformatted', name, true );
+						log.fatal( 'function malformatted', name );
 					}
 				}
 				else
-					log.fatal( 'container', 'getDependencies failed, function not registered', name, true );
+					log.fatal( 'getDependencies failed, function not registered', name );
 			}
 		}
 		else
-			log.fatal( 'container', 'getDependencies failed, not registered', name, true );
+			log.fatal( 'getDependencies failed, not registered', name );
 	},
 	getUnresolvableDependencies = function( name, parents ) {
 		parents = parents || [ name ];
@@ -72,9 +80,9 @@ module.exports = function( log ) {
 		var dependencies = getDependencies( name );
 		for( var i = 0 ; i < dependencies.length ; i++ ) {
 			var dependency = dependencies[ i ];
-			if( dependency != 'readyCallback' )
+			if( !isReservedDependency( dependency ) )
 				if( parents.indexOf( dependency ) >= 0 )
-					log.fatal( 'container', 'Cyclic dependency', parents.concat( [ dependency ] ).join( ' -> ' ), true );
+					log.fatal( 'Cyclic dependency', parents.concat( [ dependency ] ).join( ' -> ' ) );
 				else {
 					var chain = getUnresolvableDependencies( dependency, parents.concat( [ dependency ] ) );
 					if( chain )
@@ -83,18 +91,52 @@ module.exports = function( log ) {
 		}
 		return undefined;
 	},
-	resolveDependencies = function( dependencies, readyCallback, callback, resolved ) {
+	resolveDependencies = function( name, parentName, dependencies, iocCallback, callback, resolved ) {
 		resolved = resolved || [];
 		if( dependencies.length > 0 ) {
-			if( dependencies[ 0 ] == 'readyCallback' )
-				resolveDependencies( dependencies.slice( 1 ), undefined, callback, resolved.concat( [ readyCallback ] ) );
+			var dependency = dependencies[ 0 ], remaining = dependencies.slice( 1 );
+			if( isReservedDependency( dependency ) ) {
+				if( dependency == 'iocParentName' ) {
+					resolveDependencies( name, undefined, remaining, iocCallback, callback, resolved.concat( [ parentName ] ) );
+				}
+				else // readyCallback, parentName
+					resolveDependencies( name, parentName, remaining, undefined, callback, resolved.concat( [ iocCallback ] ) );
+			}
 			else
-				resolve( dependencies[ 0 ], function( instance ) {
-					resolveDependencies( dependencies.slice( 1 ), readyCallback, callback, resolved.concat( [ instance ] ) );
-				} );
+				resolve( dependency, function( instance ) {
+					resolveDependencies( name, parentName, remaining, iocCallback, callback, resolved.concat( [ instance ] ) );
+				}, name );
 		}
 		else {
-			callback( resolved, readyCallback );
+			callback( resolved, iocCallback );
+		}
+	},
+	resolve = function( name, callback, parentName ) {
+		var component = components[ name ];
+		if ( component === undefined )
+			log.fatal( 'Unresolvable, not registered', name );
+		else if( component.instance )
+			callback( component.instance );
+		else {
+			log.debug( 'resolving', name );
+			startWaiting( name );
+			resolveDependencies( name, parentName, component.dependencies, function( instance ) {
+				if( component.singleton )
+					log.info( instance ? 'resolved singleton' : 'only injected singleton', name );
+				else
+					log.debug( instance ? 'resolved transient' : 'only injected transient', name );
+				component.resolved = true;
+				if( component.singleton )
+					component.instance = instance;
+				stopWaiting( name );
+				callback( instance );
+			}, function( resolvedDependencies, iocCallback ) {
+				log.trace( 'injecting', name + ' (' + component.dependencies.join( ', ' ) + ')' );
+				if( iocCallback )
+					iocCallback( component.fn.apply( this, resolvedDependencies ) );
+				else
+					component.fn.apply( this, resolvedDependencies );
+			} );
 		}
 	},
 	reportWaiting = function() {
@@ -102,7 +144,7 @@ module.exports = function( log ) {
 			clearInterval( waitingId );
 		waitingId = setInterval( function() {
 			var ms = new Date().getTime() - waitingTs;
-			log.warning( 'container', 'Waiting for callback from', waiting[ waiting.length - 1 ] + ' (' + ( ms / 1000 ) + ' s)' );
+			log.warning( 'Waiting for callback from', waiting[ waiting.length - 1 ] + ' (' + ( ms / 1000 ) + ' s)' );
 		}, waitingWarningTime );
 	},
 	startWaiting = function( name ) {
@@ -120,34 +162,9 @@ module.exports = function( log ) {
 	setWaitingWarningTime = function( milliseconds ) {
 		waitingWarningTime = milliseconds;
 	},
-	resolve = function( name, callback ) {
-		var component = components[ name ];
-		if ( component === undefined )
-			log.fatal( 'container', 'Unresolvable, not registered', name );
-		else if( component.instance )
-			callback( component.instance );
-		else {
-			log.debug( 'container', 'resolving', name );
-			startWaiting( name );
-			resolveDependencies( component.dependencies, function( instance ) {
-				log.info( 'container', instance ? 'resolved' : 'only injected', name );
-				component.resolved = true;
-				if( component.singleton )
-					component.instance = instance;
-				stopWaiting( name );
-				callback( instance );
-			}, function( resolvedDependencies, readyCallback ) {
-				log.trace( 'container', 'injecting', name + ' (' + component.dependencies.join( ', ' ) + ')' );
-				if( readyCallback )
-					readyCallback( component.fn.apply( this, resolvedDependencies ) );
-				else
-					component.fn.apply( this, resolvedDependencies );
-			} );
-		}
-	},
 	inject = function( fn ) {
-		log.debug( 'container', 'injecting anonymous function' );
-		resolveDependencies( getDependencies( 'anonymous function', fn ), function() {}, function( resolvedDependencies ) {
+		log.debug( 'injecting anonymous function', undefined );
+		resolveDependencies( 'anonymous', undefined, getDependencies( 'anonymous function', fn ), function() {}, function( resolvedDependencies ) {
 			fn.apply( this, resolvedDependencies );
 		} );
 	},
@@ -174,22 +191,25 @@ module.exports = function( log ) {
 			}
 		}
 		if( tries.length > 0 )
-			log.fatal( 'container', 'Unresolvable components', '\n ' + tries.join( '\n ' ), true );
+			log.fatal( 'Unresolvable components', '\n ' + tries.join( '\n ' ) );
 	},
 	resolveAll = function( callback ) {
-		log.trace( 'container', 'Resolving all' );
+		log.trace( 'Resolving all', undefined );
 		var nextResolvable = getNextResolvable();
 		if( nextResolvable )
 			resolve( nextResolvable, function() {
 				resolveAll( callback );
 			} );
 		else {
-			log.debug( 'container', 'All resolved' );
+			log.debug( 'All resolved', undefined );
 			setImmediate( callback );
 		}
 	},
 	reset = function() {
 		components = {};
+	},
+	setLogger = function( logger ) {
+		log = logger;
 	};
 	return {
 		register: register,
@@ -198,7 +218,8 @@ module.exports = function( log ) {
 		resolveAll: resolveAll,
 		inject: inject,
 		reset: reset,
-		setWaitingWarningTime: setWaitingWarningTime
+		setWaitingWarningTime: setWaitingWarningTime,
+		setLogger: setLogger
 	};
 };
 
