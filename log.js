@@ -84,10 +84,6 @@ logJson = function( logObject ) {
 	console.log( JSON.stringify( logObject ) );
 };
 
-process.on( 'uncaughtException', function( err ) {
-	log( getLogObject( 1, [ 'Uncaught exception: ' + err.toString(), err.stack ] ) );
-} );
-
 var Log = function( iocParentName ) {
 	this.iocParentName = iocParentName;
 	this.fatal = function()		{ if( 0 > logSettings.level ) return; log( getLogObject( 0, this.iocParentName, arguments ) ); process.exit( 1 ); };
