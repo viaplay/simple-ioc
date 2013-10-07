@@ -23,6 +23,11 @@
 		files.findValidFiles( relativePath, register );
 		return ioc;
 	},
+	registerWrapper = function( name, wrapperName ) {
+		log.info( 'Regestering wrapper', wrapperName + '( ' + name + ' )' );
+		container.registerWrapper( name, wrapperName );
+		return ioc;
+	},
 	start = function( callback ) {
 		log.info( 'ioc', 'Starting by resolving all', undefined, undefined );
 		container.resolveAll( function() {
@@ -110,7 +115,8 @@
 		conditionalPathAutoRegister: conditionalPathAutoRegister,
 		conditionalRegister: conditionalRegister,
 		conditionalRegisterRequired: conditionalRegisterRequired,
-		setWaitingWarningTime: setWaitingWarningTime
+		setWaitingWarningTime: setWaitingWarningTime,
+		registerWrapper: registerWrapper
 	};
 
 	register( 'ioc', ioc );

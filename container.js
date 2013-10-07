@@ -1,9 +1,12 @@
 module.exports = function( log ) {
-	var components = {},
+	var components = {}, wrappers = {},
 		waitingId, waitingTs, waiting = [], waitingWarningTime = 2000,
 		reservedDependencies = [ 'readyCallback', 'iocCallback', 'iocParentName' ],
 	isReservedDependency = function( name ) {
 		return reservedDependencies.indexOf( name ) >= 0;
+	},
+	registerWrapper = function( name, wrapperName ) {
+		wrappers[ name ] = wrapperName;
 	},
 	register = function( name, fn, singleton ) {
 		log.trace( 'registering', name );
@@ -111,12 +114,18 @@ module.exports = function( log ) {
 			callback( resolved, iocCallback );
 		}
 	},
+	shouldWrapComponent = function( name ) {
+		return !!wrappers[ name ];
+	},
 	resolve = function( name, callback, parentName ) {
 		var component = components[ name ];
 		if ( component === undefined )
 			log.fatal( 'Unresolvable, not registered', name );
 		else if( component.instance )
-			callback( component.instance );
+			if( shouldWrapComponent( name ) )
+				wrapComponent( parentName, name, component.instance, callback );
+			else
+				callback( component.instance );
 		else {
 			log.debug( 'resolving', name );
 			startWaiting( name );
@@ -129,7 +138,10 @@ module.exports = function( log ) {
 				if( component.singleton )
 					component.instance = instance;
 				stopWaiting( name );
-				callback( instance );
+				if( shouldWrapComponent( name ) )
+					wrapComponent( parentName, name, instance, callback );
+				else
+					callback( instance );
 			}, function( resolvedDependencies, iocCallback ) {
 				log.trace( 'injecting', name + ' (' + component.dependencies.join( ', ' ) + ')' );
 				if( iocCallback )
@@ -137,6 +149,47 @@ module.exports = function( log ) {
 				else
 					component.fn.apply( this, resolvedDependencies );
 			} );
+		}
+	},
+	wrapFunction = function( parentName, name, fn, wrapper ) {
+		return function() {
+			var args = [];
+			for( var argument in arguments ) {
+				args.push( arguments[ argument ] );
+			}
+			var callback = args.pop();
+			wrapper( parentName, name, args, function( cb ) {
+				args.push( function() {
+					cb( parentName, name, arguments );
+					callback.apply( callback, arguments );
+				} );
+				fn.apply( fn, args );
+			} );
+
+		};
+	},
+	wrapObject = function( parentName, name, obj, wrapper ) {
+		var result;
+		if( typeof( obj ) == 'function' )
+			result = wrapFunction( parentName, name, obj, wrapper );
+		else
+			result = {};
+		for( var prop in obj ) {
+			if( typeof( obj[ prop ] ) == 'function' && getDependencies( undefined, obj[ prop ] ).indexOf( 'callback' ) >= 0 )
+				result[ prop ] = wrapFunction( parentName, name + '.' + prop, obj[ prop ], wrapper );
+			else
+				result[ prop ] = obj[ prop ];
+		}
+		return result;
+	},
+	wrapComponent = function( parentName, name, instance, callback ) {
+		var wrapperName = wrappers[ name ];
+		if( !components[ wrapperName ] )
+			log.fatal( 'Wrapper not registered', wrapperName );
+		else {
+			resolve( wrapperName, function( wrapper ) {
+				callback( wrapObject( parentName, name, instance, wrapper ) );
+			}, parentName );
 		}
 	},
 	reportWaiting = function() {
@@ -219,7 +272,8 @@ module.exports = function( log ) {
 		inject: inject,
 		reset: reset,
 		setWaitingWarningTime: setWaitingWarningTime,
-		setLogger: setLogger
+		setLogger: setLogger,
+		registerWrapper: registerWrapper
 	};
 };
 
