@@ -348,15 +348,11 @@ __Example__
 ```js
 ioc.setWaitingWarningTime( 1000 ); // Will start to log warnings if components take more than 1 seconds to callback
 ```
----------------------------------------
-<a name="wrap" />
 ### wrap( name, wrapperName )
 
-Wrap a component that can be , the wrapper should only return a function with the following signature:
-* parentName
-* name
-* parameters - The parameters that is also sent to the wrapped function
-* callback
+Wrap asynchronous component with name 'name' with the component with the name 'wrappedName' in order to measure for example its performance. The wrapped component can be either a function or an object. If it's a function it must have 'callback' as its last parameter. If it's an object each method of the object will be wrapped with the wrapper and these must each have 'callback' as their last parameter. 'wrappedName' is the name of a wrapper component that must only return a function with the following signature: function ( parentName, name, parameters, callback).
+
+The argument 'parameters' is an array with the parameters that is also sent to the wrapped function. The wrapper should not manipulate these but can read them.
 
 The callback must be called once the wrapper has done its own work and must be called with a callback that will be called when the wrapped function has finished.
 
@@ -375,14 +371,30 @@ timingWrapper.js:
 ```js
 module.exports = function () {
 	return function ( parentName, name, parameters, callback ) {
+		var start = Date.now();
+		callback( function () {
+			var totalTime = Date.now() - start;
+			console.log( name, 'with parent', parentName, 'was called with params', parameters );
+			console.log( 'it took', totalTime, 'ms');
+		})
+	}
+}
+```
 
+asyncTask.js:
+```js
+module.exports = function () {
+	return function ( callback ) {
+		setTimeout( callback, 100 )
 	}
 }
 ```
 
 using the wrapper in the ioc:
 ```js
-ioc.wrap( 'async_task_with_callback_as_last_parameter', 'wrapper_component_name' )
+ioc.autoRegister( './timingWrapper.js' )
+	.autoRegister( './asyncTask.js' )
+	.wrap( 'asyncTask', 'timingWrapper' )
 ```
 ---------------------------------------
 <a name="wrapFromSettings" />
@@ -413,4 +425,4 @@ ioc.setSettings( 'settings', {
 ```
 ## Release notes
 
-### 2.2.0
+### 2.2.0 - Wrapping
