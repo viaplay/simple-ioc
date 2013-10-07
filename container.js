@@ -5,7 +5,7 @@ module.exports = function( log ) {
 	isReservedDependency = function( name ) {
 		return reservedDependencies.indexOf( name ) >= 0;
 	},
-	registerWrapper = function( name, wrapperName ) {
+	wrap = function( name, wrapperName ) {
 		wrappers[ name ] = wrapperName;
 	},
 	register = function( name, fn, singleton ) {
@@ -273,7 +273,7 @@ module.exports = function( log ) {
 		reset: reset,
 		setWaitingWarningTime: setWaitingWarningTime,
 		setLogger: setLogger,
-		registerWrapper: registerWrapper
+		wrap: wrap
 	};
 };
 

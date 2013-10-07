@@ -348,7 +348,69 @@ __Example__
 ```js
 ioc.setWaitingWarningTime( 1000 ); // Will start to log warnings if components take more than 1 seconds to callback
 ```
+---------------------------------------
+<a name="wrap" />
+### wrap( name, wrapperName )
 
+Wrap a component that can be , the wrapper should only return a function with the following signature:
+* parentName
+* name
+* parameters - The parameters that is also sent to the wrapped function
+* callback
+
+The callback must be called once the wrapper has done its own work and must be called with a callback that will be called when the wrapped function has finished.
+
+__Arguments__
+
+* name - the component to be wrapped (could be a function or object)
+* wrapperName - the wrapper that is registered in the ioc
+
+__Returns__
+
+The ioc
+
+__Example__
+
+timingWrapper.js:
+```js
+module.exports = function () {
+	return function ( parentName, name, parameters, callback ) {
+
+	}
+}
+```
+
+using the wrapper in the ioc:
+```js
+ioc.wrap( 'async_task_with_callback_as_last_parameter', 'wrapper_component_name' )
+```
+---------------------------------------
+<a name="wrapFromSettings" />
+### wrap( settingsKey )
+
+Registers werappers from settings
+
+__Arguments__
+
+* settingsKey - The key to a settings-object which describes all wrappings
+
+__Returns__
+
+The ioc
+
+__Example__
+
+```js
+ioc.setSettings( 'settings', {
+	wrapTheseComponents: {
+		unwrapped: 'wrapper'
+	}
+} )
+.register( 'unwrapped', './unwrapped.js' )
+.register( 'wrapper', './wrapper.js' )
+.wrapFromSettings( 'wrapTheseComponents' );
+
+```
 ## Release notes
 
-### 2.0.5
+### 2.2.0

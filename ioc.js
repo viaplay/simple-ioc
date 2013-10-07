@@ -23,9 +23,9 @@
 		files.findValidFiles( relativePath, register );
 		return ioc;
 	},
-	registerWrapper = function( name, wrapperName ) {
-		log.info( 'Regestering wrapper', wrapperName + '( ' + name + ' )' );
-		container.registerWrapper( name, wrapperName );
+	wrap = function( name, wrapperName ) {
+		log.info( 'Wrapping', wrapperName + '( ' + name + ' )' );
+		container.wrap( name, wrapperName );
 		return ioc;
 	},
 	start = function( callback ) {
@@ -87,6 +87,16 @@
 		log.trace( 'ioc', 'ConditionalRegisterRequired', settingsKey, undefined );
 		return ( settings.matchesSetting( settingsKey, conditionalValue ) ) ? registerRequired( name, required, lifecycleTransient ) : ioc;
 	},
+	wrapFromSettings = function( settingsKey ) {
+		log.trace( 'wrapFromSettings', settingsKey );
+		var wrapperSettings = settings.getSetting( settingsKey );
+		if( wrapperSettings ) {
+			for( var name in wrapperSettings )
+				wrap( name, wrapperSettings[ name ] );
+		}
+		return ioc;
+	},
+
 	setWaitingWarningTime = function( milliseconds ) {
 		container.setWaitingWarningTime( milliseconds );
 		return ioc;
@@ -116,7 +126,8 @@
 		conditionalRegister: conditionalRegister,
 		conditionalRegisterRequired: conditionalRegisterRequired,
 		setWaitingWarningTime: setWaitingWarningTime,
-		registerWrapper: registerWrapper
+		wrap: wrap,
+		wrapFromSettings: wrapFromSettings
 	};
 
 	register( 'ioc', ioc );
