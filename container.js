@@ -151,7 +151,7 @@ module.exports = function( log ) {
 			} );
 		}
 	},
-	wrapFunctionAsync = function( parentName, name, fn, wrapper ) {
+	wrapFunctionAsync = function( obj, parentName, name, fn, wrapper ) {
 		return function() {
 			var args = [];
 			for( var argument in arguments ) {
@@ -167,18 +167,18 @@ module.exports = function( log ) {
 					cb.apply( cb, arguments );
 					callback.apply( callback, arguments );
 				} );
-				fn.apply( fn, args );
+				fn.apply( obj, args );
 			} );
 		};
 	},
-	wrapFunctionSync = function( parentName, name, fn, wrapper ) {
+	wrapFunctionSync = function( obj, parentName, name, fn, wrapper ) {
 		return function() {
 			var args = [];
 			for( var argument in arguments ) {
 				args.push( arguments[ argument ] );
 			}
 			var ts = Date.now();
-			var result = fn.apply( fn, args );
+			var result = fn.apply( obj, args );
 			wrapper( {
 				caller: parentName,
 				wrapped: name,
@@ -189,20 +189,20 @@ module.exports = function( log ) {
 			return result;
 		};
 	},
-	wrapFunction = function( parentName, name, fn, wrapper ) {
+	wrapFunction = function( obj, parentName, name, fn, wrapper ) {
 		var dependencies = getDependencies( undefined, fn );
 		if( dependencies.indexOf( 'callback' ) === ( dependencies.length - 1 ) )
-			return wrapFunctionAsync( parentName, name, fn, wrapper.async || wrapper );
+			return wrapFunctionAsync( obj, parentName, name, fn, wrapper.async || wrapper );
 		else if( wrapper.sync )
-			return wrapFunctionSync( parentName, name, fn, wrapper.sync );
+			return wrapFunctionSync( obj, parentName, name, fn, wrapper.sync );
 		else
 			return fn;
 	},
 	wrapObject = function( parentName, name, obj, wrapper ) {
-		var result = ( typeof( obj ) == 'function' ) ? wrapFunction( parentName, name, obj, wrapper ) : {};
+		var result = ( typeof( obj ) == 'function' ) ? wrapFunction( obj, parentName, name, obj, wrapper ) : {};
 		for( var prop in obj ) {
 			if( typeof( obj[ prop ] ) == 'function' )
-				result[ prop ] = wrapFunction( parentName, name + '.' + prop, obj[ prop ], wrapper );
+				result[ prop ] = wrapFunction( obj, parentName, name + '.' + prop, obj[ prop ], wrapper );
 			else
 				log.warning( 'Wrapping component with public non-function fields', name + '.' + prop );
 		}
@@ -302,4 +302,3 @@ module.exports = function( log ) {
 		wrap: wrap
 	};
 };
-
