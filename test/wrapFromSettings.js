@@ -25,11 +25,11 @@ require( '../ioc' )
 		};
 	} )
 	.registerRequired( 'wrapper', function() {
-		return function( parentName, name, parameters, callback ) {
+		return function( context, parameters, callback ) {
 			var ts = new Date().getTime();
 			callback( function( result ) {
 				q++;
-				console.log( parentName, name, new Date().getTime() - ts);
+				console.log( context.caller, context.wrapped, new Date().getTime() - ts);
 			} );
 		};
 	} )

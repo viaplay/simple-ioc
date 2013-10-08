@@ -350,7 +350,12 @@ ioc.setWaitingWarningTime( 1000 ); // Will start to log warnings if components t
 ```
 ### wrap( name, wrapperName )
 
-Wrap asynchronous component with name 'name' with the component with the name 'wrappedName' in order to measure for example its performance. The wrapped component can be either a function or an object. If it's a function it must have 'callback' as its last parameter. If it's an object each method of the object will be wrapped with the wrapper and these must each have 'callback' as their last parameter. 'wrappedName' is the name of a wrapper component that must only return a function with the following signature: function ( parentName, name, parameters, callback).
+Wrap asynchronous component with name 'name' with the component with the name 'wrappedName' in order to measure for example its performance. The wrapped component can be either a function or an object. If it's a function it must have 'callback' as its last parameter. If it's an object each method of the object will be wrapped with the wrapper and these must each have 'callback' as their last parameter. 'wrappedName' is the name of a wrapper component that must only return a function with the following signature: function ( context, parameters, callback ).
+
+context consists of
+* caller - the calling component
+* wrapped - the wrapped component
+* async - true/false (if the call was asyncronious)
 
 The argument 'parameters' is an array with the parameters that is also sent to the wrapped function. The wrapper should not manipulate these but can read them.
 
@@ -370,7 +375,7 @@ __Example__
 timingWrapper.js:
 ```js
 module.exports = function () {
-	return function ( parentName, name, parameters, callback ) {
+	return function ( context, parameters, callback ) {
 		var start = Date.now();
 		callback( function () {
 			var totalTime = Date.now() - start;

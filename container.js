@@ -151,34 +151,59 @@ module.exports = function( log ) {
 			} );
 		}
 	},
-	wrapFunction = function( parentName, name, fn, wrapper ) {
+	wrapFunctionAsync = function( parentName, name, fn, wrapper ) {
 		return function() {
 			var args = [];
 			for( var argument in arguments ) {
 				args.push( arguments[ argument ] );
 			}
 			var callback = args.pop();
-			wrapper( parentName, name, args, function( cb ) {
+			wrapper( {
+				caller: parentName,
+				wrapped: name,
+				async: true
+			}, args.slice( 0 ), function( cb ) {
 				args.push( function() {
-					cb( parentName, name, arguments );
+					cb.apply( cb, arguments );
 					callback.apply( callback, arguments );
 				} );
 				fn.apply( fn, args );
 			} );
-
 		};
 	},
-	wrapObject = function( parentName, name, obj, wrapper ) {
-		var result;
-		if( typeof( obj ) == 'function' )
-			result = wrapFunction( parentName, name, obj, wrapper );
+	wrapFunctionSync = function( parentName, name, fn, wrapper ) {
+		return function() {
+			var args = [];
+			for( var argument in arguments ) {
+				args.push( arguments[ argument ] );
+			}
+			var ts = new Date().getTime();
+			var result = fn.apply( fn, args );
+			wrapper( {
+				caller: parentName,
+				wrapped: name,
+				async: false,
+				time: new Date().getTime() - ts
+			}, args, result );
+			return result;
+		};
+	},
+	wrapFunction = function( parentName, name, fn, wrapper ) {
+		var dependencies = getDependencies( undefined, fn );
+		if( dependencies.indexOf( 'callback' ) === ( dependencies.length - 1 ) )
+			return wrapFunctionAsync( parentName, name, fn, wrapper.async || wrapper );
+		else if( wrapper.sync )
+			return wrapFunctionSync( parentName, name, fn, wrapper.sync );
 		else
-			result = {};
+			return fn;
+	},
+	wrapObject = function( parentName, name, obj, wrapper ) {
+		var result = ( typeof( obj ) == 'function' ) ? wrapFunction( parentName, name, obj, wrapper ) : {};
 		for( var prop in obj ) {
-			if( typeof( obj[ prop ] ) == 'function' && getDependencies( undefined, obj[ prop ] ).indexOf( 'callback' ) >= 0 )
+			if( typeof( obj[ prop ] ) == 'function' )
 				result[ prop ] = wrapFunction( parentName, name + '.' + prop, obj[ prop ], wrapper );
 			else
-				result[ prop ] = obj[ prop ];
+				log.warning( 'Wrapping component with public non-function fields', name + '.' + prop );
 		}
 		return result;
 	},
