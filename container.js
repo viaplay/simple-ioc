@@ -177,13 +177,14 @@ module.exports = function( log ) {
 			for( var argument in arguments ) {
 				args.push( arguments[ argument ] );
 			}
-			var ts = new Date().getTime();
+			var ts = Date.now();
 			var result = fn.apply( fn, args );
 			wrapper( {
 				caller: parentName,
 				wrapped: name,
 				async: false,
-				time: new Date().getTime() - ts
+				ts: ts,
+				time: Date.now() - ts
 			}, args, result );
 			return result;
 		};
