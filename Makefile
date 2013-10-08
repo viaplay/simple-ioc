@@ -3,8 +3,8 @@ SHELL=/bin/bash
 
 default: test
 
-FAIL=echo FAIL
-PASS=echo PASS
+FAIL=echo -e "\033[31m"FAIL"\033[0m"
+PASS=echo -e "\033[32m"PASS"\033[0m"
 
 test:
 	@echo Using $(NODE)
