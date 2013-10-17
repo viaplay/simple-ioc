@@ -135,7 +135,9 @@
 		conditionalRegisterRequired: conditionalRegisterRequired,
 		setWaitingWarningTime: setWaitingWarningTime,
 		wrap: wrap,
-		wrapFromSettings: wrapFromSettings
+		wrapFromSettings: wrapFromSettings,
+		registerLib: registerLib,
+		registerDependency: registerDependency
 	};
 
 	register( 'ioc', ioc );
