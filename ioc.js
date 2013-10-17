@@ -18,6 +18,14 @@
 		container.register( name, required, lifecycleTransient ? false : true );
 		return ioc;
 	},
+	registerDependency = function( name, loaded ) {
+		container.registerDependency( name, loaded );
+		return ioc;
+	},
+	registerLib = function( required ) {
+		container.register( undefined, required, true );
+		return ioc;
+	},
 	autoRegister = function( relativePath ) {
 		log.trace( 'ioc', 'Auto regestering', relativePath, undefined );
 		files.findValidFiles( relativePath, register );

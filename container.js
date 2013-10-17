@@ -1,5 +1,5 @@
 module.exports = function( log ) {
-	var components = {}, wrappers = {},
+	var components = {}, wrappers = {}, libCount = 1,
 		waitingId, waitingTs, waiting = [], waitingWarningTime = 2000,
 		reservedDependencies = [ 'readyCallback', 'iocCallback', 'iocParentName' ],
 	isReservedDependency = function( name ) {
@@ -9,6 +9,7 @@ module.exports = function( log ) {
 		wrappers[ name ] = wrapperName;
 	},
 	register = function( name, fn, singleton ) {
+		name = name || ( 'lib' + libCount++ );
 		log.trace( 'registering', name );
 		if( components[ name ] )
 			log.fatal( 'Same name was already registered', name );
@@ -33,6 +34,12 @@ module.exports = function( log ) {
 				log.warning( 'Possible unused dependencies for', name + '(' + unusedDependencies.join( ', ' ) + ')' );
 			log.debug( 'registered', name );
 		}
+	},
+	registerDependency = function( name, loaded ) {
+		if( components[ name ] )
+			log.info( 'Dependency already registered', name );
+		else
+			register( name, loaded, true );
 	},
 	load = function( name, instance ) {
 		if( components[ name ] )
