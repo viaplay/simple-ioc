@@ -37,9 +37,9 @@ module.exports = function( log ) {
 	},
 	registerDependency = function( name, loaded ) {
 		if( components[ name ] )
-			log.info( 'Dependency already registered', name );
+			log.info( 'Dependency already registered, using existing', name );
 		else
-			register( name, loaded, true );
+			load( name, loaded );
 	},
 	load = function( name, instance ) {
 		if( components[ name ] )
