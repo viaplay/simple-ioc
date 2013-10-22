@@ -306,6 +306,7 @@ module.exports = function( log ) {
 		reset: reset,
 		setWaitingWarningTime: setWaitingWarningTime,
 		setLogger: setLogger,
-		wrap: wrap
+		wrap: wrap,
+		registerDependency: registerDependency
 	};
 };
