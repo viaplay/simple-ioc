@@ -73,6 +73,9 @@
 		register( name, data );
 		return ioc;
 	},
+	getSettings = function () {
+        	return settings.getSettings();
+    	},
 	conditionalAutoRegister = function( settingsKey, conditionalValue, path ) {
 		log.trace( 'ioc', 'ConditionalAutoRegister', settingsKey, undefined );
 		return ( settings.matchesSetting( settingsKey, conditionalValue ) ) ? autoRegister( path ) : ioc;
@@ -129,6 +132,7 @@
 		reset: reset,
 		setStartedCallback: setStartedCallback,
 		setSettings: setSettings,
+		getSettings: getSettings,
 		conditionalAutoRegister: conditionalAutoRegister,
 		conditionalPathAutoRegister: conditionalPathAutoRegister,
 		conditionalRegister: conditionalRegister,
