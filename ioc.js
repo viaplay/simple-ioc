@@ -129,6 +129,7 @@
 		libs.forEach( function( lib ) {
 			pub.registerLib( lib );
 		} );
+		return pub;
 	};
 	pub.register( 'ioc', pub );
 	module.exports = pub;
