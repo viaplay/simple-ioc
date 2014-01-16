@@ -1,0 +1,179 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node', '/usr/local/bin/npm', 'publish' ]
+2 info using npm@1.3.11
+3 info using node@v0.10.21
+4 verbose publish [ '.' ]
+5 verbose cache add [ '.', null ]
+6 verbose cache add name=undefined spec="." args=[".",null]
+7 verbose parsed url { protocol: null,
+7 verbose parsed url   slashes: null,
+7 verbose parsed url   auth: null,
+7 verbose parsed url   host: null,
+7 verbose parsed url   port: null,
+7 verbose parsed url   hostname: null,
+7 verbose parsed url   hash: null,
+7 verbose parsed url   search: null,
+7 verbose parsed url   query: null,
+7 verbose parsed url   pathname: '.',
+7 verbose parsed url   path: '.',
+7 verbose parsed url   href: '.' }
+8 silly lockFile 3a52ce78- .
+9 verbose lock . /Users/jrapp/.npm/3a52ce78-.lock
+10 verbose tar pack [ '/var/folders/qy/n8wysz5538s9qcvk0rtw8_b80000gn/T/npm-20449-4-Pxum19/1389888103426-0.5435606767423451/tmp.tgz',
+10 verbose tar pack   '.' ]
+11 verbose tarball /var/folders/qy/n8wysz5538s9qcvk0rtw8_b80000gn/T/npm-20449-4-Pxum19/1389888103426-0.5435606767423451/tmp.tgz
+12 verbose folder .
+13 silly lockFile 1f1177db-tar tar://.
+14 verbose lock tar://. /Users/jrapp/.npm/1f1177db-tar.lock
+15 silly lockFile e9a3b086-03426-0-5435606767423451-tmp-tgz tar:///var/folders/qy/n8wysz5538s9qcvk0rtw8_b80000gn/T/npm-20449-4-Pxum19/1389888103426-0.5435606767423451/tmp.tgz
+16 verbose lock tar:///var/folders/qy/n8wysz5538s9qcvk0rtw8_b80000gn/T/npm-20449-4-Pxum19/1389888103426-0.5435606767423451/tmp.tgz /Users/jrapp/.npm/e9a3b086-03426-0-5435606767423451-tmp-tgz.lock
+17 silly lockFile 1f1177db-tar tar://.
+18 silly lockFile 1f1177db-tar tar://.
+19 silly lockFile e9a3b086-03426-0-5435606767423451-tmp-tgz tar:///var/folders/qy/n8wysz5538s9qcvk0rtw8_b80000gn/T/npm-20449-4-Pxum19/1389888103426-0.5435606767423451/tmp.tgz
+20 silly lockFile e9a3b086-03426-0-5435606767423451-tmp-tgz tar:///var/folders/qy/n8wysz5538s9qcvk0rtw8_b80000gn/T/npm-20449-4-Pxum19/1389888103426-0.5435606767423451/tmp.tgz
+21 verbose tar unpack /var/folders/qy/n8wysz5538s9qcvk0rtw8_b80000gn/T/npm-20449-4-Pxum19/1389888103426-0.5435606767423451/tmp.tgz
+22 silly lockFile 179ee646-03426-0-5435606767423451-package tar:///var/folders/qy/n8wysz5538s9qcvk0rtw8_b80000gn/T/npm-20449-4-Pxum19/1389888103426-0.5435606767423451/package
+23 verbose lock tar:///var/folders/qy/n8wysz5538s9qcvk0rtw8_b80000gn/T/npm-20449-4-Pxum19/1389888103426-0.5435606767423451/package /Users/jrapp/.npm/179ee646-03426-0-5435606767423451-package.lock
+24 silly lockFile e9a3b086-03426-0-5435606767423451-tmp-tgz tar:///var/folders/qy/n8wysz5538s9qcvk0rtw8_b80000gn/T/npm-20449-4-Pxum19/1389888103426-0.5435606767423451/tmp.tgz
+25 verbose lock tar:///var/folders/qy/n8wysz5538s9qcvk0rtw8_b80000gn/T/npm-20449-4-Pxum19/1389888103426-0.5435606767423451/tmp.tgz /Users/jrapp/.npm/e9a3b086-03426-0-5435606767423451-tmp-tgz.lock
+26 silly gunzTarPerm modes [ '755', '644' ]
+27 silly gunzTarPerm extractEntry package.json
+28 silly gunzTarPerm extractEntry .npmignore
+29 silly gunzTarPerm extractEntry README.md
+30 silly gunzTarPerm extractEntry settings.js
+31 silly gunzTarPerm extractEntry container.js
+32 silly gunzTarPerm extractEntry ioc.js
+33 silly gunzTarPerm extractEntry log.js
+34 silly gunzTarPerm extractEntry files.js
+35 silly gunzTarPerm extractEntry LICENSE.md
+36 silly gunzTarPerm extractEntry Makefile
+37 silly gunzTarPerm extractEntry test/autoRegister.js
+38 silly gunzTarPerm extractEntry test/conditionalPathAutoRegister.js
+39 silly gunzTarPerm extractEntry test/conditionalRegister.js
+40 silly gunzTarPerm extractEntry test/readyCallbackWaitingWarning.js
+41 silly gunzTarPerm extractEntry test/register.js
+42 silly gunzTarPerm extractEntry test/reset.js
+43 silly gunzTarPerm extractEntry test/resetWithSettings.js
+44 silly gunzTarPerm extractEntry test/wrap.js
+45 silly gunzTarPerm extractEntry test/wrapFromSettings.js
+46 silly gunzTarPerm extractEntry test/exampleDependencies/moduleWithNoDependencies.js
+47 silly gunzTarPerm extractEntry test/exampleDependencies/moduleWithOneDependency.js
+48 silly lockFile 179ee646-03426-0-5435606767423451-package tar:///var/folders/qy/n8wysz5538s9qcvk0rtw8_b80000gn/T/npm-20449-4-Pxum19/1389888103426-0.5435606767423451/package
+49 silly lockFile 179ee646-03426-0-5435606767423451-package tar:///var/folders/qy/n8wysz5538s9qcvk0rtw8_b80000gn/T/npm-20449-4-Pxum19/1389888103426-0.5435606767423451/package
+50 silly lockFile e9a3b086-03426-0-5435606767423451-tmp-tgz tar:///var/folders/qy/n8wysz5538s9qcvk0rtw8_b80000gn/T/npm-20449-4-Pxum19/1389888103426-0.5435606767423451/tmp.tgz
+51 silly lockFile e9a3b086-03426-0-5435606767423451-tmp-tgz tar:///var/folders/qy/n8wysz5538s9qcvk0rtw8_b80000gn/T/npm-20449-4-Pxum19/1389888103426-0.5435606767423451/tmp.tgz
+52 verbose tar pack [ '/Users/jrapp/.npm/simple-ioc/2.3.6/package.tgz',
+52 verbose tar pack   '/var/folders/qy/n8wysz5538s9qcvk0rtw8_b80000gn/T/npm-20449-4-Pxum19/1389888103426-0.5435606767423451/package' ]
+53 verbose tarball /Users/jrapp/.npm/simple-ioc/2.3.6/package.tgz
+54 verbose folder /var/folders/qy/n8wysz5538s9qcvk0rtw8_b80000gn/T/npm-20449-4-Pxum19/1389888103426-0.5435606767423451/package
+55 silly lockFile 179ee646-03426-0-5435606767423451-package tar:///var/folders/qy/n8wysz5538s9qcvk0rtw8_b80000gn/T/npm-20449-4-Pxum19/1389888103426-0.5435606767423451/package
+56 verbose lock tar:///var/folders/qy/n8wysz5538s9qcvk0rtw8_b80000gn/T/npm-20449-4-Pxum19/1389888103426-0.5435606767423451/package /Users/jrapp/.npm/179ee646-03426-0-5435606767423451-package.lock
+57 silly lockFile 450711cc-npm-simple-ioc-2-3-6-package-tgz tar:///Users/jrapp/.npm/simple-ioc/2.3.6/package.tgz
+58 verbose lock tar:///Users/jrapp/.npm/simple-ioc/2.3.6/package.tgz /Users/jrapp/.npm/450711cc-npm-simple-ioc-2-3-6-package-tgz.lock
+59 silly lockFile 179ee646-03426-0-5435606767423451-package tar:///var/folders/qy/n8wysz5538s9qcvk0rtw8_b80000gn/T/npm-20449-4-Pxum19/1389888103426-0.5435606767423451/package
+60 silly lockFile 179ee646-03426-0-5435606767423451-package tar:///var/folders/qy/n8wysz5538s9qcvk0rtw8_b80000gn/T/npm-20449-4-Pxum19/1389888103426-0.5435606767423451/package
+61 silly lockFile 450711cc-npm-simple-ioc-2-3-6-package-tgz tar:///Users/jrapp/.npm/simple-ioc/2.3.6/package.tgz
+62 silly lockFile 450711cc-npm-simple-ioc-2-3-6-package-tgz tar:///Users/jrapp/.npm/simple-ioc/2.3.6/package.tgz
+63 silly lockFile 2ba7c6cd-app-npm-simple-ioc-2-3-6-package /Users/jrapp/.npm/simple-ioc/2.3.6/package
+64 verbose lock /Users/jrapp/.npm/simple-ioc/2.3.6/package /Users/jrapp/.npm/2ba7c6cd-app-npm-simple-ioc-2-3-6-package.lock
+65 silly lockFile 2ba7c6cd-app-npm-simple-ioc-2-3-6-package /Users/jrapp/.npm/simple-ioc/2.3.6/package
+66 silly lockFile 2ba7c6cd-app-npm-simple-ioc-2-3-6-package /Users/jrapp/.npm/simple-ioc/2.3.6/package
+67 verbose tar unpack /Users/jrapp/.npm/simple-ioc/2.3.6/package.tgz
+68 silly lockFile 8b8125e7-app-npm-simple-ioc-2-3-6-package tar:///Users/jrapp/.npm/simple-ioc/2.3.6/package
+69 verbose lock tar:///Users/jrapp/.npm/simple-ioc/2.3.6/package /Users/jrapp/.npm/8b8125e7-app-npm-simple-ioc-2-3-6-package.lock
+70 silly lockFile 450711cc-npm-simple-ioc-2-3-6-package-tgz tar:///Users/jrapp/.npm/simple-ioc/2.3.6/package.tgz
+71 verbose lock tar:///Users/jrapp/.npm/simple-ioc/2.3.6/package.tgz /Users/jrapp/.npm/450711cc-npm-simple-ioc-2-3-6-package-tgz.lock
+72 silly gunzTarPerm modes [ '755', '644' ]
+73 silly gunzTarPerm extractEntry package.json
+74 silly gunzTarPerm extractEntry .npmignore
+75 silly gunzTarPerm extractEntry README.md
+76 silly gunzTarPerm extractEntry settings.js
+77 silly gunzTarPerm extractEntry container.js
+78 silly gunzTarPerm extractEntry ioc.js
+79 silly gunzTarPerm extractEntry log.js
+80 silly gunzTarPerm extractEntry files.js
+81 silly gunzTarPerm extractEntry LICENSE.md
+82 silly gunzTarPerm extractEntry Makefile
+83 silly gunzTarPerm extractEntry test/autoRegister.js
+84 silly gunzTarPerm extractEntry test/conditionalPathAutoRegister.js
+85 silly gunzTarPerm extractEntry test/conditionalRegister.js
+86 silly gunzTarPerm extractEntry test/readyCallbackWaitingWarning.js
+87 silly gunzTarPerm extractEntry test/register.js
+88 silly gunzTarPerm extractEntry test/reset.js
+89 silly gunzTarPerm extractEntry test/resetWithSettings.js
+90 silly gunzTarPerm extractEntry test/wrap.js
+91 silly gunzTarPerm extractEntry test/wrapFromSettings.js
+92 silly gunzTarPerm extractEntry test/exampleDependencies/moduleWithNoDependencies.js
+93 silly gunzTarPerm extractEntry test/exampleDependencies/moduleWithOneDependency.js
+94 silly lockFile 8b8125e7-app-npm-simple-ioc-2-3-6-package tar:///Users/jrapp/.npm/simple-ioc/2.3.6/package
+95 silly lockFile 8b8125e7-app-npm-simple-ioc-2-3-6-package tar:///Users/jrapp/.npm/simple-ioc/2.3.6/package
+96 silly lockFile 450711cc-npm-simple-ioc-2-3-6-package-tgz tar:///Users/jrapp/.npm/simple-ioc/2.3.6/package.tgz
+97 silly lockFile 450711cc-npm-simple-ioc-2-3-6-package-tgz tar:///Users/jrapp/.npm/simple-ioc/2.3.6/package.tgz
+98 verbose chmod /Users/jrapp/.npm/simple-ioc/2.3.6/package.tgz 644
+99 verbose chown /Users/jrapp/.npm/simple-ioc/2.3.6/package.tgz [ 501, 20 ]
+100 silly lockFile 3a52ce78- .
+101 silly lockFile 3a52ce78- .
+102 silly publish { name: 'simple-ioc',
+102 silly publish   version: '2.3.6',
+102 silly publish   description: 'Simple Dependency Injection for node.js',
+102 silly publish   main: 'ioc.js',
+102 silly publish   scripts: { test: 'make' },
+102 silly publish   repository:
+102 silly publish    { type: 'git',
+102 silly publish      url: 'https://github.com/viaplay/simple-ioc.git' },
+102 silly publish   keywords: [ 'IoC', 'Dependency Injection' ],
+102 silly publish   author: { name: 'Joakim J. Rapp, Viaplay' },
+102 silly publish   license: 'BSD',
+102 silly publish   readmeFilename: 'README.md',
+102 silly publish   gitHead: 'cf000ad2b360e7956a8378008c736196347b5cbd',
+102 silly publish   readme: 'simple-ioc\n==========\n\nSimple Dependency Injection for node.js\n\n## Installation\n\n```\nnpm install simple-ioc\n```\n\n## Synopsis\n\nAn example of setting up the ioc\n\n```javascript\nrequire( \'simple-ioc\' )\n\t.setLogLevel( 3 )\n\t.register( \'settings\', require( \'./configuration/settings\' ) )\n\t.register( \'packageInfo\', require( \'./package.json\' ) )\n\t.register( \'amqp\', require( \'amqp\' ) )\n\t.autoRegister( \'./lib/\' )\n\t.register( \'app\', \'./handlers/itemQueryHandler.js\' )\n\t.start( function( packageInfo, ioc ) {\n\t\t// ioc not used here but can be injected\n\t\tconsole.log( \'Application started, version:\', packageInfo.version );\n\t} );\n```\n\nAn example of an injected component, in this case \'./handlers/itemQueryHandler.js\'\n\n```javascript\nmodule.exports = function( settings, amqp ) {\n\n\t...some code...\n\t\n\treturn {\n\t\t...something...\n\t};\n};\n```\n\n## Concepts\nFiles that are injectable normally looks like this:\n\n```javascript\nmodule.exports = function( dependency1, dependency2... ) {\n\t// code\t\n};\n```\n\nComponents that needs to be loaded asynchroniously can, by convension in the ioc, depend on a ```readyCallback```, what ever that is used as the first parameter to this function will be loaded in the ioc. \n\n```javascript\nmodule.exports = function( readyCallback ) {\n\tsetTimeout( function() {\n\t\treadyCallback( { val: 4 } );\n\t}, 1000 );\n};\n```\n\n## Methods\n---------------------------------------\n<a name="setLogLevel" />\n### setLogLevel( level )\n\nSets the minimum level of logs to cause an output, this only affects the ioc\'s logging.\n\nNOTE: All FATAL errors also exists the application.\n\n__Arguments__\n\n* level - minimum level\n\nNOTE: Possible values:\n- `0`: FATAL\n- `1`: ERROR\n- `2`: WARNING\n- `3`: INFO\n- `4`: DEBUG\n- `5`: TRACE\n\n__Returns__\n\nThe ioc\n\n__Example__\n\n```js\nioc.setLogLevel( 1 ); // Will cause the ioc to only outputs FATAL and ERROR logs.\n```\n---------------------------------------\n<a name="register" />\n### register( name, pathOrLoaded, lifecycleTransient )\n\nRegsisters a component in the ioc.\n\n__Arguments__\n\n* name - The name to identify the component when injecting\n* pathOrLoaded - Can either be a filepath, which will be required by the ioc and injected, all other types (objects, functions etc) will just be loaded into the ioc.\n* lifecycleTransient - Boolean, if set, the comopnent will be re-injected, when ever used as a dependency.\n\n__Returns__\n\nThe ioc\n\n__Example__\n\n```js\nioc\n\t.register( \'async\', require( \'async\' ) ) // Registers the async library as async\n\t.register( \'test\', \'./test.js\', true ); // Requires \'./test.js\', and when used as dependency will be injected every time\n```\n---------------------------------------\n<a name="registerRequired" />\n### registerRequired( name, required, lifecycleTransient )\n\nRegsisters a function that will be injected when used as a dependency in the ioc.\n\n__Arguments__\n\n* name - The name to identify the component when injecting\n* required - function that can be injected\n* lifecycleTransient - Boolean, if set, the comopnent will be re-injected, when ever used as a dependency.\n\n__Returns__\n\nThe ioc\n\n__Example__\n\n```js\nioc.registerRequired( \'myLibrary\', require( \'my-library-in-node_modules\' ) );\n```\n---------------------------------------\n<a name="autoRegister" />\n### autoRegister( relativePath )\n\nSearches the path for files that ends with \'.js\' and registers all with the filename (exluding .js) as name.\n\n__Arguments__\n\n* relativePath - Path to folder or file.\n\n__Returns__\n\nThe ioc\n\n__Example__\n\n```js\nioc.autoRegister( \'./app\' ); // Registers all files in the folder \'app\'\n```\n---------------------------------------\n<a name="start" />\n### start( callback )\n\nResolves and injects all registerd components that do not have a transient lifecycle.\n\n__Arguments__\n\n* callback - Function that will be injected when all components are resolved. If setStartedCallback has been called, this function will also be injected.\n\n__Returns__\n\nThe ioc\n\n__Example__\n\n```js\nioc.start( function( async, myLibrary ) {\n\t// Code that uses async and myLibrary\n} );\n```\n---------------------------------------\n<a name="inject" />\n### inject( fn )\n\nInjects a function, similar to start, but will not resolve components that the function is not dependent of.\n\n__Arguments__\n\n* fn - Function that will be injected.\n\n__Returns__\n\nThe ioc\n\n__Example__\n\n```js\nioc.inject( function( async, myLibrary ) {\n\t// Code that uses async and myLibrary\n} );\n```\n---------------------------------------\n<a name="reset" />\n### reset()\n\nResets the ioc by removing all components, normally used in tests\n\n__Returns__\n\nThe ioc\n\n__Example__\n\n```js\nioc\n\t.register( \'test\', { val: 1 } )\n\t.reset()\n\t.inject( function( test ) {\n\t\t// Will cause an fatal error, since test is no longer registered in the ioc.\n\t} );\n```\n---------------------------------------\n<a name="setStartedCallback" />\n### setStartedCallback( fn )\n\nSets a function that will be injected after start is finished. If starts was called earlier, the function will be called directly.\n\n__Arguments__\n\n* fn - Function that will be injected after start\n\n__Returns__\n\nThe ioc\n\n__Example__\n\n```js\nioc.setStartedCallback( function( test ) {\n\t\tconsole.log( test.toString() );\n\t} )\n\t.start();\n```\n---------------------------------------\n<a name="setSettings" />\n### setSettings( name, obj )\n\nSets settings that is registered and the ioc can access.\n\n__Arguments__\n\n* name - Identifying name of settings\n* obj - The settings, an object.\n\n__Returns__\n\nThe ioc\n\n__Example__\n\n```js\nioc.setSettings( \'settings\', { environment: \'test\' } )\n\t.start( function( settings ) {\n\t\tconsole.log( settings.environment ); // Should output \'test\'\n\t} );\n```\n---------------------------------------\n<a name="conditionalAutoRegister" />\n### conditionalAutoRegister( settingsKey, conditionalValue, path )\n\nReads settings, compares value to conditionalValue, if match perfoms a autoRegister\n\n__Arguments__\n\n* settingsKey - String to search for in settings, .-notated\n* conditionalValue - value to compare against\n* path - Path to folder or file.\n\n__Returns__\n\nThe ioc\n\n__Example__\n\n```js\nioc.setSettings( \'settings\', { environment: \'test\' } )\n\t.conditionalAutoRegister( \'evironment\', \'test\', \'./lib\' ); // Sould autoRegister \'./lib\'\n```\n---------------------------------------\n<a name="conditionalRegister" />\n### conditionalRegister( settingsKey, conditionalValue, name, pathOrLoaded, lifecycleTransient )\n\nReads settings, compares value to conditionalValue, if match perfoms a register\n\n__Arguments__\n\n* settingsKey - String to search for in settings, .-notated\n* conditionalValue - value to compare against\n* name - The name to identify the component when injecting\n* pathOrLoaded - Can either be a filepath, which will be required by the ioc and injected, all other types (objects, functions etc) will just be loaded into the ioc.\n* lifecycleTransient - Boolean, if set, the comopnent will be re-injected, when ever used as a dependency.\n\n__Returns__\n\nThe ioc\n\n__Example__\n\n```js\nioc.setSettings( \'settings\', { environment: \'test\' } )\n\t.conditionalAutoRegister( \'evironment\', \'test\', \'some_component\', require( \'some_component\' ) ); // Sould register \'some_component\'\n```\n---------------------------------------\n<a name="conditionalRegisterRequired" />\n### conditionalRegister( settingsKey, conditionalValue, name, required, lifecycleTransient )\n\nReads settings, compares value to conditionalValue, if match perfoms a registerRequired\n\n__Arguments__\n\n* settingsKey - String to search for in settings, .-notated\n* conditionalValue - value to compare against\n* name - The name to identify the component when injecting\n* required - function that can be injected\n* lifecycleTransient - Boolean, if set, the comopnent will be re-injected, when ever used as a dependency.\n\n__Returns__\n\nThe ioc\n\n__Example__\n\n```js\nioc.setSettings( \'settings\', { environment: \'test\' } )\n\t.conditionalRegisterRequired( \'evironment\', \'test\', \'some_component\', function( settings ) { return \'test\'; } ); // Sould register \'some_component\'\n```\n---------------------------------------\n<a name="setWaitingWarningTime" />\n### setWaitingWarningTime( milliseconds )\n\nSets the amount of milliseconds the ioc waits for a component with a readyCallback to callback before it starts to warn\n\n__Arguments__\n\n* milliseconds - amount of milliseconds\n\n__Returns__\n\nThe ioc\n\n__Example__\n\n```js\nioc.setWaitingWarningTime( 1000 ); // Will start to log warnings if components take more than 1 seconds to callback\n```\n### wrap( name, wrapperName )\n\nWrap asynchronous component with name \'name\' with the component with the name \'wrappedName\' in order to measure for example its performance. The wrapped component can be either a function or an object. If it\'s a function it must have \'callback\' as its last parameter. If it\'s an object each method of the object will be wrapped with the wrapper and these must each have \'callback\' as their last parameter. \'wrappedName\' is the name of a wrapper component that must only return a function with the following signature: function ( context, parameters, callback ).\n\ncontext consists of\n* caller - the calling component\n* wrapped - the wrapped component\n* async - true/false (if the call was asyncronious)\n\nThe argument \'parameters\' is an array with the parameters that is also sent to the wrapped function. The wrapper should not manipulate these but can read them.\n\nThe callback must be called once the wrapper has done its own work and must be called with a callback that will be called when the wrapped function has finished.\n\n__Arguments__\n\n* name - the component to be wrapped (could be a function or object)\n* wrapperName - the wrapper that is registered in the ioc\n\n__Returns__\n\nThe ioc\n\n__Example__\n\ntimingWrapper.js:\n```js\nmodule.exports = function () {\n\treturn function ( context, parameters, callback ) {\n\t\tvar start = Date.now();\n\t\tcallback( function () {\n\t\t\tvar totalTime = Date.now() - start;\n\t\t\tconsole.log( name, \'with parent\', parentName, \'was called with params\', parameters );\n\t\t\tconsole.log( \'it took\', totalTime, \'ms\');\n\t\t})\n\t}\n}\n```\n\nasyncTask.js:\n```js\nmodule.exports = function () {\n\treturn function ( callback ) {\n\t\tsetTimeout( callback, 100 )\n\t}\n}\n```\n\nusing the wrapper in the ioc:\n```js\nioc.autoRegister( \'./timingWrapper.js\' )\n\t.autoRegister( \'./asyncTask.js\' )\n\t.wrap( \'asyncTask\', \'timingWrapper\' )\n```\n---------------------------------------\n<a name="wrapFromSettings" />\n### wrap( settingsKey )\n\nRegisters werappers from settings\n\n__Arguments__\n\n* settingsKey - The key to a settings-object which describes all wrappings\n\n__Returns__\n\nThe ioc\n\n__Example__\n\n```js\nioc.setSettings( \'settings\', {\n\twrapTheseComponents: {\n\t\tunwrapped: \'wrapper\'\n\t}\n} )\n.register( \'unwrapped\', \'./unwrapped.js\' )\n.register( \'wrapper\', \'./wrapper.js\' )\n.wrapFromSettings( \'wrapTheseComponents\' );\n\n```\n## Release notes\n\n### 2.2.0 - Wrapping\n',
+102 silly publish   bugs: { url: 'https://github.com/viaplay/simple-ioc/issues' },
+102 silly publish   _id: 'simple-ioc@2.3.6',
+102 silly publish   dist: { shasum: 'b2bd94e6fc61f4e26419be41f9576c7b825b2e7c' },
+102 silly publish   _from: '.' }
+103 verbose url raw simple-ioc
+104 verbose url resolving [ 'https://registry.npmjs.org/', './simple-ioc' ]
+105 verbose url resolved https://registry.npmjs.org/simple-ioc
+106 info trying registry request attempt 1 at 17:01:43
+107 http PUT https://registry.npmjs.org/simple-ioc
+108 http 409 https://registry.npmjs.org/simple-ioc
+109 verbose url raw simple-ioc
+110 verbose url resolving [ 'https://registry.npmjs.org/', './simple-ioc' ]
+111 verbose url resolved https://registry.npmjs.org/simple-ioc
+112 info trying registry request attempt 1 at 17:01:44
+113 http GET https://registry.npmjs.org/simple-ioc
+114 http 200 https://registry.npmjs.org/simple-ioc
+115 verbose uploading [ 'simple-ioc/-/simple-ioc-2.3.6.tgz/-rev/105-e5536580f4606bf19d57344bc41e3cee',
+115 verbose uploading   '/Users/jrapp/.npm/simple-ioc/2.3.6/package.tgz' ]
+116 verbose url raw simple-ioc/-/simple-ioc-2.3.6.tgz/-rev/105-e5536580f4606bf19d57344bc41e3cee
+117 verbose url resolving [ 'https://registry.npmjs.org/',
+117 verbose url resolving   './simple-ioc/-/simple-ioc-2.3.6.tgz/-rev/105-e5536580f4606bf19d57344bc41e3cee' ]
+118 verbose url resolved https://registry.npmjs.org/simple-ioc/-/simple-ioc-2.3.6.tgz/-rev/105-e5536580f4606bf19d57344bc41e3cee
+119 info trying registry request attempt 1 at 17:01:45
+120 http PUT https://registry.npmjs.org/simple-ioc/-/simple-ioc-2.3.6.tgz/-rev/105-e5536580f4606bf19d57344bc41e3cee
+121 http 201 https://registry.npmjs.org/simple-ioc/-/simple-ioc-2.3.6.tgz/-rev/105-e5536580f4606bf19d57344bc41e3cee
+122 verbose publish attached [ 'simple-ioc',
+122 verbose publish   '/Users/jrapp/.npm/simple-ioc/2.3.6/package.tgz',
+122 verbose publish   'simple-ioc-2.3.6.tgz' ]
+123 verbose url raw simple-ioc/2.3.6/-tag/latest
+124 verbose url resolving [ 'https://registry.npmjs.org/',
+124 verbose url resolving   './simple-ioc/2.3.6/-tag/latest' ]
+125 verbose url resolved https://registry.npmjs.org/simple-ioc/2.3.6/-tag/latest
+126 info trying registry request attempt 1 at 17:01:45
+127 http PUT https://registry.npmjs.org/simple-ioc/2.3.6/-tag/latest
+128 http 409 https://registry.npmjs.org/simple-ioc/2.3.6/-tag/latest
+129 error publish fail Cannot publish over existing version.
+129 error publish fail Update the 'version' field in package.json and try again.
+129 error publish fail
+129 error publish fail If the previous version was published in error, see:
+129 error publish fail     npm help unpublish
+129 error publish fail
+129 error publish fail To automatically increment version numbers, see:
+129 error publish fail     npm help version
+130 error System Darwin 13.0.0
+131 error command "node" "/usr/local/bin/npm" "publish"
+132 error cwd /Users/jrapp/development/viaplay/simple-ioc
+133 error node -v v0.10.21
+134 error npm -v 1.3.11
+135 error code EPUBLISHCONFLICT
+136 verbose exit [ 1, true ]
