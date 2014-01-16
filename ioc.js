@@ -77,6 +77,9 @@
 		log.trace( 'ioc', 'ConditionalAutoRegister', settingsKey, undefined );
 		return ( settings.matchesSetting( settingsKey, conditionalValue ) ) ? pub.autoRegister( path ) : pub;
 	};
+	pub.getSettings = function() {
+		return settings.getSettings();
+	};
 	pub.conditionalPathAutoRegister = function( settingsKey, basePath ) {
 		log.trace( 'ioc', 'ConditionalPathAutoRegister', settingsKey, undefined );
 		var settingsValue = settings.getSetting( settingsKey );
