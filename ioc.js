@@ -86,7 +86,7 @@
 		if( settingsValue ) {
 			if( basePath.indexOf( '/', basePath.length - 1 ) < 0 )
 				basePath += '/';
-			return autoRegister( basePath + settingsValue );
+			return pub.autoRegister( basePath + settingsValue );
 		}
 		else return pub;
 	};
