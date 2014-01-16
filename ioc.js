@@ -120,7 +120,7 @@
 		files.setLogger( logger( 'files', settings.getSettings() ) );
 		return pub;
 	};
-	pub.multiRegisterSingletons = function( compnents ) {
+	pub.multiRegisterSingletons = function( components ) {
 		for( var name in components )
 			pub.register( name, components[ name ] );
 		return pub;
