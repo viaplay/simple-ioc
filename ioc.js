@@ -24,7 +24,7 @@
 	};
 	pub.registerLib = function( required ) {
 		if( typeof( required ) == 'string' )
-			container.register( required, require( required ), true );
+			container.registerLib( required, require( required ) );
 		else
 			container.register( undefined, required, true );
 		return pub;
