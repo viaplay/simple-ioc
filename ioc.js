@@ -23,7 +23,10 @@
 		return pub;
 	};
 	pub.registerLib = function( required ) {
-		container.register( undefined, required, true );
+		if( typeof( required ) == 'string' )
+			container.register( required, require( required ), true );
+		else
+			container.register( undefined, required, true );
 		return pub;
 	};
 	pub.autoRegister = function( relativePath ) {

@@ -41,6 +41,12 @@ module.exports = function( log ) {
 		else
 			load( name, loaded );
 	},
+	registerLib = function( name, fn ) {
+		if( components[ name ] )
+			log.info( 'Library already registered, using existing', name );
+		else
+			register( name, fn, true );
+	},
 	load = function( name, instance ) {
 		if( components[ name ] )
 			log.fatal( 'Same name was already registered', name );
@@ -302,6 +308,7 @@ module.exports = function( log ) {
 		load: load,
 		resolve: resolve,
 		resolveAll: resolveAll,
+		registerLib: registerLib,
 		inject: inject,
 		reset: reset,
 		setWaitingWarningTime: setWaitingWarningTime,
