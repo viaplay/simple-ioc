@@ -37,13 +37,13 @@ module.exports = function( log ) {
 	},
 	registerDependency = function( name, loaded ) {
 		if( components[ name ] )
-			log.info( 'Dependency already registered, using existing', name );
+			log.debug( 'Dependency already registered, using existing', name );
 		else
 			load( name, loaded );
 	},
 	registerLib = function( name, fn ) {
 		if( components[ name ] )
-			log.info( 'Library already registered, using existing', name );
+			log.debug( 'Library already registered, using existing', name );
 		else
 			register( name, fn, true );
 	},
@@ -55,7 +55,7 @@ module.exports = function( log ) {
 				instance: instance,
 				resolved: true
 			};
-			log.info( 'loaded', name );
+			log.debug( 'loaded', name );
 		}
 	},
 	getDependencies = function( name, fn ) {
@@ -144,7 +144,7 @@ module.exports = function( log ) {
 			startWaiting( name );
 			resolveDependencies( name, parentName, component.dependencies, function( instance ) {
 				if( component.singleton )
-					log.info( instance ? 'resolved singleton' : 'only injected singleton', name );
+					log.debug( instance ? 'resolved singleton' : 'only injected singleton', name );
 				else
 					log.debug( instance ? 'resolved transient' : 'only injected transient', name );
 				component.resolved = true;
