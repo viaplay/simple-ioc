@@ -216,7 +216,7 @@ module.exports = function( log ) {
 		for( var prop in obj ) {
 			if( typeof( obj[ prop ] ) == 'function' )
 				result[ prop ] = wrapFunction( obj, parentName, name + '.' + prop, obj[ prop ], wrapper );
-			else
+			else if( !wrapper.hideWrappingWarning )
 				log.warning( 'Wrapping component with public non-function fields', name + '.' + prop );
 		}
 		return result;
