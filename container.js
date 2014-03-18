@@ -1,7 +1,7 @@
 module.exports = function( log ) {
 	var components = {}, wrappers = {}, libCount = 1,
 		waitingId, waitingTs, waiting = [], waitingWarningTime = 2000,
-		reservedDependencies = [ 'readyCallback', 'iocCallback', 'iocParentName' ],
+		reservedDependencies = [ 'readyCallback', 'iocCallback', 'iocParentName', 'pub', 'iocStart' ],
 	isReservedDependency = function( name ) {
 		return reservedDependencies.indexOf( name ) >= 0;
 	},
@@ -107,20 +107,23 @@ module.exports = function( log ) {
 		}
 		return undefined;
 	},
-	resolveDependencies = function( name, parentName, dependencies, iocCallback, callback, resolved ) {
+	resolveDependencies = function( name, parentName, dependencies, pub, iocStart, iocCallback, callback, resolved ) {
 		resolved = resolved || [];
 		if( dependencies.length > 0 ) {
 			var dependency = dependencies[ 0 ], remaining = dependencies.slice( 1 );
 			if( isReservedDependency( dependency ) ) {
-				if( dependency == 'iocParentName' ) {
-					resolveDependencies( name, undefined, remaining, iocCallback, callback, resolved.concat( [ parentName ] ) );
-				}
-				else // readyCallback, parentName
-					resolveDependencies( name, parentName, remaining, undefined, callback, resolved.concat( [ iocCallback ] ) );
+				if( dependency == 'iocParentName' )
+					resolveDependencies( name, undefined, remaining, pub, iocStart, iocCallback, callback, resolved.concat( [ parentName ] ) );
+				else if( dependency === 'pub' )
+					resolveDependencies( name, parentName, remaining, undefined, iocStart, iocCallback, callback, resolved.concat( [ pub ] ) );
+				else if( dependency === 'iocStart' )
+					resolveDependencies( name, parentName, remaining, pub, undefined, iocCallback, callback, resolved.concat( [ iocStart ] ) );
+				else
+					resolveDependencies( name, parentName, remaining, pub, iocStart, undefined, callback, resolved.concat( [ iocCallback ] ) );
 			}
 			else
 				resolve( dependency, function( instance ) {
-					resolveDependencies( name, parentName, remaining, iocCallback, callback, resolved.concat( [ instance ] ) );
+					resolveDependencies( name, parentName, remaining, pub, iocStart, iocCallback, callback, resolved.concat( [ instance ] ) );
 				}, name );
 		}
 		else {
@@ -142,12 +145,19 @@ module.exports = function( log ) {
 		else {
 			log.debug( 'resolving', name );
 			startWaiting( name );
-			resolveDependencies( name, parentName, component.dependencies, function( instance ) {
-				if( component.singleton )
+			var pub = {};
+			var iocStartFn,
+				iocStart = function( fn ) {
+					iocStartFn = fn;
+				};
+			resolveDependencies( name, parentName, component.dependencies, pub, iocStart, function( instance ) {
+				instance = Object.keys( pub ).length > 0 ? pub : instance;
+				if( component.singleton ) {
 					log.debug( instance ? 'resolved singleton' : 'only injected singleton', name );
+					component.resolved = true;
+				}
 				else
 					log.debug( instance ? 'resolved transient' : 'only injected transient', name );
-				component.resolved = true;
 				if( component.singleton )
 					component.instance = instance;
 				stopWaiting( name );
@@ -157,10 +167,11 @@ module.exports = function( log ) {
 					callback( instance );
 			}, function( resolvedDependencies, iocCallback ) {
 				log.trace( 'injecting', name + ' (' + component.dependencies.join( ', ' ) + ')' );
+				var instance = component.fn.apply( this, resolvedDependencies );
+				if( iocStartFn )
+					iocStartFn();
 				if( iocCallback )
-					iocCallback( component.fn.apply( this, resolvedDependencies ) );
-				else
-					component.fn.apply( this, resolvedDependencies );
+					iocCallback( instance );
 			} );
 		}
 	},
@@ -256,7 +267,7 @@ module.exports = function( log ) {
 	},
 	inject = function( fn ) {
 		log.debug( 'injecting anonymous function', undefined );
-		resolveDependencies( 'anonymous', undefined, getDependencies( 'anonymous function', fn ), function() {}, function( resolvedDependencies ) {
+		resolveDependencies( 'anonymous', undefined, getDependencies( 'anonymous function', fn ), {}, undefined, function() {}, function( resolvedDependencies ) {
 			fn.apply( this, resolvedDependencies );
 		} );
 	},
