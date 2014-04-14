@@ -8,7 +8,7 @@ module.exports = function( log ) {
 	wrap = function( name, wrapperName ) {
 		wrappers[ name ] = wrapperName;
 	},
-	register = function( name, fn, singleton ) {
+	register = function( name, fn, singleton, isLib ) {
 		name = name || ( 'lib' + libCount++ );
 		log.trace( 'registering', name );
 		if( components[ name ] )
@@ -19,6 +19,8 @@ module.exports = function( log ) {
 				singleton: singleton,
 				resolved: false
 			};
+			if( isLib )
+				components[ name ].hasUsage = true;
 			var dependencies = getDependencies( name );
 			components[ name ].dependencies = dependencies;
 			if( ( dependencies.indexOf( 'iocParentName' ) >= 0 ) && singleton ) {
@@ -45,7 +47,7 @@ module.exports = function( log ) {
 		if( components[ name ] )
 			log.debug( 'Library already registered, using existing', name );
 		else
-			register( name, fn, true );
+			register( name, fn, true, true );
 	},
 	load = function( name, instance ) {
 		if( components[ name ] )
@@ -137,42 +139,46 @@ module.exports = function( log ) {
 		var component = components[ name ];
 		if ( component === undefined )
 			log.fatal( 'Unresolvable, not registered', name );
-		else if( component.instance )
-			if( shouldWrapComponent( name ) )
-				wrapComponent( parentName, name, component.instance, callback );
-			else
-				callback( component.instance );
 		else {
-			log.debug( 'resolving', name );
-			startWaiting( name );
-			var pub = {};
-			var iocStartFn,
-				iocStart = function( fn ) {
-					iocStartFn = fn;
-				};
-			resolveDependencies( name, parentName, component.dependencies, pub, iocStart, function( instance ) {
-				instance = Object.keys( pub ).length > 0 ? pub : instance;
-				if( component.singleton ) {
-					log.debug( instance ? 'resolved singleton' : 'only injected singleton', name );
-					component.resolved = true;
-				}
-				else
-					log.debug( instance ? 'resolved transient' : 'only injected transient', name );
-				if( component.singleton )
-					component.instance = instance;
-				stopWaiting( name );
+			if( parentName )
+				component.hasUsage = true;
+			if( component.instance )
 				if( shouldWrapComponent( name ) )
-					wrapComponent( parentName, name, instance, callback );
+					wrapComponent( parentName, name, component.instance, callback );
 				else
-					callback( instance );
-			}, function( resolvedDependencies, iocCallback ) {
-				log.trace( 'injecting', name + ' (' + component.dependencies.join( ', ' ) + ')' );
-				var instance = component.fn.apply( this, resolvedDependencies );
-				if( iocStartFn )
-					iocStartFn();
-				if( iocCallback )
-					iocCallback( instance );
-			} );
+					callback( component.instance );
+			else {
+				log.debug( 'resolving', name );
+				startWaiting( name );
+				var pub = {};
+				var iocStartFn,
+					iocStart = function( fn ) {
+						iocStartFn = fn;
+					};
+				resolveDependencies( name, parentName, component.dependencies, pub, iocStart, function( instance ) {
+					instance = Object.keys( pub ).length > 0 ? pub : instance;
+					if( component.singleton ) {
+						log.debug( instance ? 'resolved singleton' : 'only injected singleton', name );
+						component.resolved = true;
+					}
+					else
+						log.debug( instance ? 'resolved transient' : 'only injected transient', name );
+					if( component.singleton )
+						component.instance = instance;
+					stopWaiting( name );
+					if( shouldWrapComponent( name ) )
+						wrapComponent( parentName, name, instance, callback );
+					else
+						callback( instance );
+				}, function( resolvedDependencies, iocCallback ) {
+					log.trace( 'injecting', name + ' (' + component.dependencies.join( ', ' ) + ')' );
+					var instance = component.fn.apply( this, resolvedDependencies );
+					if( iocStartFn )
+						iocStartFn();
+					if( iocCallback )
+						iocCallback( instance );
+				} );
+			}
 		}
 	},
 	wrapFunctionAsync = function( obj, parentName, name, fn, wrapper ) {
@@ -313,6 +319,13 @@ module.exports = function( log ) {
 	},
 	setLogger = function( logger ) {
 		log = logger;
+	},
+	getUnreferedComponentNames = function() {
+		unrefered = [];
+		for( var name in components )
+			if( !components[ name ].hasUsage )
+				unrefered.push( name );
+		return unrefered;
 	};
 	return {
 		register: register,
@@ -325,6 +338,7 @@ module.exports = function( log ) {
 		setWaitingWarningTime: setWaitingWarningTime,
 		setLogger: setLogger,
 		wrap: wrap,
-		registerDependency: registerDependency
+		registerDependency: registerDependency,
+		getUnreferedComponentNames: getUnreferedComponentNames
 	};
 };

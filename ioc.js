@@ -42,7 +42,7 @@
 	pub.start = function( callback ) {
 		log.info( 'ioc', 'Starting by resolving all', undefined, undefined );
 		container.resolveAll( function() {
-			log.info( 'ioc', 'All resolved', undefined, undefined );
+			log.info( 'ioc', 'All resolved, unreffered components', container.getUnreferedComponentNames(), undefined );
 			started = true;
 			if( callback )
 				container.inject( callback );
@@ -72,8 +72,8 @@
 		return pub;
 	};
 	pub.setSettings = function( name, data ) {
-		settings.set( data );
-		pub.register( name, data );
+		settings.set( Array.prototype.slice.call( arguments, 0 ).splice( 1 ) );
+		pub.register( name, settings.getSettings() );
 		return pub;
 	};
 	pub.conditionalAutoRegister = function( settingsKey, conditionalValue, path ) {

@@ -9,10 +9,23 @@ module.exports = function( log ) {
 		}
 		return setting;
 	},
-	set = function( obj ) {
+	merge = function( o1, o2 ) {
+		for( var prop in o2 )
+			if( typeof( o2[ prop ] ) === 'object' && !Array.isArray( o2[ prop ] ) ) {
+				o1[ prop ] = o1[ prop ] || {};
+				merge( o1[ prop ], o2[ prop ] );
+			}
+			else
+				o1[ prop ] = o2[ prop ];
+	},
+	set = function( arr ) {
 		if ( settingsObj )
 			log.debug( 'Replacing settings with new value' );
-		settingsObj = obj;
+		var tempSettings = {};
+		arr.forEach( function( item ) {
+			merge( tempSettings, item );
+		} );
+		settingsObj = tempSettings;
 	},
 	reset = function() {
 		settingsObj = undefined;
