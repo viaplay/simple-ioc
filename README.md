@@ -156,7 +156,7 @@ ioc.autoRegister( './app' ); // Registers all files in the folder 'app'
 <a name="start" />
 ### start( callback )
 
-Resolves and injects all registerd components that do not have a transient lifecycle.
+Resolves and injects all registered components that do not have a transient lifecycle.
 
 __Arguments__
 
