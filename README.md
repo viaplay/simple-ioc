@@ -434,6 +434,10 @@ ioc.setSettings( 'settings', {
 You can force ioc to ignore a file from autoregistering by adding
 ```/* ioc:ignore */``` comment as a first line in file.
 
+You can tell ioc to skip resolving function by adding
+```/* ioc:noresolve */``` comment at the top. That way your module will be
+registered as is in ioc.
+
 ## Release notes
 
 ### 2.2.0 - Wrapping

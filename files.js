@@ -1,9 +1,7 @@
 module.exports = function( path, fs, log, basePath, getFlag ) {
 	var validFileExtensions = [ '.js' ],
 	isValidFileType = function( fullPath ) {
-		var isValidExtention = validFileExtensions.indexOf( path.extname( fullPath ) ) >= 0;
-    if (!isValidExtention) return isValidExtention;
-    return getFlag(fullPath) === 'ignore' ? false : true;
+		return validFileExtensions.indexOf( path.extname( fullPath ) ) >= 0;
 	},
 	getFullPath = function( relativePath ) {
 		log.trace( 'files', 'Resolving full path', relativePath, undefined );
@@ -34,16 +32,27 @@ module.exports = function( path, fs, log, basePath, getFlag ) {
 		log.debug( 'files', 'Full path resolved', result, undefined );
 		return result;
 	},
-	findValidFiles = function( relativePath, fn ) {
-		log.trace( 'files', 'Finding files in', relativePath, undefined );
-		var fullPath = getFullPath( relativePath );
-		if( fs.lstatSync( fullPath ).isDirectory() )
-			fs.readdirSync( fullPath ).forEach( function( name ) {
-				findValidFiles( path.join( fullPath, name ), fn );
-			} );
-		else if( isValidFileType( fullPath ) )
-			fn( path.basename( fullPath, path.extname( fullPath ) ), fullPath );
-	},
+  findValidFiles = function( relativePath, fn ) {
+    log.trace( 'files', 'Finding files in', relativePath, undefined );
+    var fullPath = getFullPath( relativePath );
+    if( fs.lstatSync( fullPath ).isDirectory() )
+      fs.readdirSync( fullPath ).forEach( function( name ) {
+        findValidFiles( path.join( fullPath, name ), fn );
+      } );
+      else if( isValidFileType( fullPath ) ) {
+        var flag = getFlag(fullPath);
+        if (!flag) {
+          fn( path.basename( fullPath, path.extname( fullPath ) ), fullPath );
+        } else {
+          if (flag === 'noresolve') {
+            log.debug('files', 'File "' + fullPath + '" marked with ioc:noresolve. Registering as is.');
+            fn( path.basename( fullPath, path.extname( fullPath ) ), fullPath, { noResolve: true });
+          } else if (flag === 'ignore') {
+            log.debug('files', 'File "' + fullPath + '" marked with ioc:ignore. Skipping.');
+          }
+        }
+      }
+  },
 	setLogger = function( logger ) {
 		log = logger;
 	};

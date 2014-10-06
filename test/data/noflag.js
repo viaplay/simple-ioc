@@ -1,6 +1,6 @@
 // My dummy module
-module.exports = function () {
+module.exports = function (multiexports) {
   return function () {
-    return 'chupacabra';
+    return 'chupacabra ' + multiexports.foo;
   }
 };
