@@ -14,8 +14,7 @@ module.exports = function() {
 							.match( /function\s+\w*\s*\((.*?)\)/ )[1].split( /\s*,\s*/ )
 							.map( function( parameter ) { return parameter.trim(); } )
 							.forEach( function( parameter ) {
-								if( parameter.length > 0 )
-									dependencies.push( parameter );
+								if( parameter.length ) dependencies.push( parameter );
 							} );
 						log.trace( 'dependencies for ' + name, dependencies.join( ', ' ) );
 						return dependencies;

@@ -8,7 +8,12 @@ module.exports = function( log ) {
 	wrap = function( name, wrapperName ) {
 		wrappers[ name ] = wrapperName;
 	},
-	register = function( name, fn, singleton, isLib ) {
+	register = function( name, fn, opts ) {
+    opts = opts || {};
+    var singleton = opts.singleton;
+    var isLib = opts.isLib;
+    var noresolve = opts.noResolve;
+
 		name = name || ( 'lib' + libCount++ );
 		log.trace( 'registering', name );
 		if( components[ name ] )
@@ -17,11 +22,11 @@ module.exports = function( log ) {
 			components[ name ] = {
 				fn: fn,
 				singleton: singleton,
-				resolved: false
+				resolved: false,
+        noresolve: noresolve
 			};
-			if( isLib )
-				components[ name ].hasUsage = true;
-			var dependencies = getDependencies( name );
+			if( isLib ) components[ name ].hasUsage = true;
+			var dependencies = noresolve ? [] : getDependencies( name );
 			components[ name ].dependencies = dependencies;
 			if( ( dependencies.indexOf( 'iocParentName' ) >= 0 ) && singleton ) {
 				log.error( 'Cannot register a component as singleton if it has iocParentName as dependency, switching to transient', name );
@@ -32,7 +37,7 @@ module.exports = function( log ) {
 				if( fn.toString().split( dependency ).length <= 2 )
 					unusedDependencies.push( dependency );
 			} );
-			if( unusedDependencies.length > 0 )
+			if( unusedDependencies.length)
 				log.warning( 'Possible unused dependencies for', name + '(' + unusedDependencies.join( ', ' ) + ')' );
 			log.debug( 'registered', name );
 		}
@@ -47,7 +52,7 @@ module.exports = function( log ) {
 		if( components[ name ] )
 			log.debug( 'Library already registered, using existing', name );
 		else
-			register( name, fn, true, true );
+			register( name, fn, { singleton: true, isLib: true });
 	},
 	load = function( name, instance ) {
 		if( components[ name ] )
@@ -111,7 +116,7 @@ module.exports = function( log ) {
 	},
 	resolveDependencies = function( name, parentName, dependencies, pub, iocStart, iocCallback, callback, resolved ) {
 		resolved = resolved || [];
-		if( dependencies.length > 0 ) {
+		if( dependencies.length ) {
 			var dependency = dependencies[ 0 ], remaining = dependencies.slice( 1 );
 			if( isReservedDependency( dependency ) ) {
 				if( dependency == 'iocParentName' )
@@ -147,6 +152,8 @@ module.exports = function( log ) {
 					wrapComponent( parentName, name, component.instance, callback );
 				else
 					callback( component.instance );
+      else if (component.noresolve)
+        callback( component.fn );
 			else {
 				log.debug( 'resolving', name );
 				startWaiting( name );
@@ -156,11 +163,14 @@ module.exports = function( log ) {
 						iocStartFn = fn;
 					};
 				resolveDependencies( name, parentName, component.dependencies, pub, iocStart, function( instance ) {
-					instance = Object.keys( pub ).length > 0 ? pub : instance;
+					instance = Object.keys( pub ).length ? pub : instance;
 					if( component.singleton ) {
 						log.debug( instance ? 'resolved singleton' : 'only injected singleton', name );
 						component.resolved = true;
-					}
+					} else if( component.noresolve ) {
+						log.debug( 'injected as is', name );
+						component.resolved = true;
+          }
 					else
 						log.debug( instance ? 'resolved transient' : 'only injected transient', name );
 					if( component.singleton )
@@ -265,7 +275,7 @@ module.exports = function( log ) {
 		clearInterval( waitingId );
 		waiting.pop();
 		waitingId = undefined;
-		if( waiting.length > 0 )
+		if( waiting.length )
 			reportWaiting();
 	},
 	setWaitingWarningTime = function( milliseconds ) {

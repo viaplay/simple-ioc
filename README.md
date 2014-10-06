@@ -33,7 +33,7 @@ An example of an injected component, in this case './handlers/itemQueryHandler.j
 module.exports = function( settings, amqp ) {
 
 	...some code...
-	
+
 	return {
 		...something...
 	};
@@ -45,11 +45,11 @@ Files that are injectable normally looks like this:
 
 ```javascript
 module.exports = function( dependency1, dependency2... ) {
-	// code	
+	// code
 };
 ```
 
-Components that needs to be loaded asynchroniously can, by convension in the ioc, depend on a ```readyCallback```, what ever that is used as the first parameter to this function will be loaded in the ioc. 
+Components that needs to be loaded asynchroniously can, by convension in the ioc, depend on a ```readyCallback```, what ever that is used as the first parameter to this function will be loaded in the ioc.
 
 ```javascript
 module.exports = function( readyCallback ) {
@@ -428,6 +428,16 @@ ioc.setSettings( 'settings', {
 .wrapFromSettings( 'wrapTheseComponents' );
 
 ```
+
+## File Annotations
+
+You can force ioc to ignore a file from autoregistering by adding
+```/* ioc:ignore */``` comment as a first line in file.
+
+You can tell ioc to skip resolving function by adding
+```/* ioc:noresolve */``` comment at the top. That way your module will be
+registered as is in ioc.
+
 ## Release notes
 
 ### 2.2.0 - Wrapping
