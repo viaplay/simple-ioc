@@ -1,7 +1,9 @@
-module.exports = function( path, fs, log, basePath ) {
+module.exports = function( path, fs, log, basePath, getFlag ) {
 	var validFileExtensions = [ '.js' ],
 	isValidFileType = function( fullPath ) {
-		return validFileExtensions.indexOf( path.extname( fullPath ) ) >= 0;
+		var isValidExtention = validFileExtensions.indexOf( path.extname( fullPath ) ) >= 0;
+    if (!isValidExtention) return isValidExtention;
+    return getFlag(fullPath) === 'ignore' ? false : true;
 	},
 	getFullPath = function( relativePath ) {
 		log.trace( 'files', 'Resolving full path', relativePath, undefined );

@@ -1,14 +1,14 @@
-( function() {
+(function() {
 	var pub = {},
-		path = require( 'path' ), fs = require( 'fs' ),
+		path = require( 'path' ), fs = require( 'fs' ), getFlag = require('./libs/getFlag'),
 		log = require( './log.js' )( 'ioc' ),
 		settings = require( './settings.js' )( require( './log.js' )( 'settings' ) ),
 		container = require( './container.js' )( require( './log.js' )( 'container' ) ),
-		files = require( './files.js' )( path, fs, require( './log.js' )( 'files' ), require( 'path' ).dirname( module.parent.filename ) ),
+		files = require( './files.js' )( path, fs, require( './log.js' )( 'files' ), require( 'path' ).dirname( module.parent.filename ), getFlag),
 		startedCallback,
 		started = false;
 	pub.register = function( name, pathOrLoaded, lifecycleTransient ) {
-		if( typeof( pathOrLoaded ) == 'string' )
+		if( typeof( pathOrLoaded ) === 'string' )
 			container.register( name, require( files.getFullPath( pathOrLoaded ) ), lifecycleTransient ? false : true );
 		else
 			container.load( name, pathOrLoaded );
@@ -23,7 +23,7 @@
 		return pub;
 	};
 	pub.registerLib = function( required ) {
-		if( typeof( required ) == 'string' )
+		if( typeof( required ) === 'string' )
 			container.registerLib( required, require( required ) );
 		else
 			container.register( undefined, required, true );
@@ -91,7 +91,7 @@
 				basePath += '/';
 			return pub.autoRegister( basePath + settingsValue );
 		}
-		else return pub;
+		return pub;
 	};
 	pub.conditionalRegister = function( settingsKey, conditionalValue, name, pathOrLoaded, lifecycleTransient ) {
 		log.trace( 'ioc', 'ConditionalRegister', settingsKey, undefined );
@@ -136,4 +136,4 @@
 	};
 	pub.register( 'ioc', pub );
 	module.exports = pub;
-} ).call( this );
+}( this ));

@@ -32,7 +32,7 @@ module.exports = function( log ) {
 				if( fn.toString().split( dependency ).length <= 2 )
 					unusedDependencies.push( dependency );
 			} );
-			if( unusedDependencies.length > 0 )
+			if( unusedDependencies.length)
 				log.warning( 'Possible unused dependencies for', name + '(' + unusedDependencies.join( ', ' ) + ')' );
 			log.debug( 'registered', name );
 		}
@@ -265,7 +265,7 @@ module.exports = function( log ) {
 		clearInterval( waitingId );
 		waiting.pop();
 		waitingId = undefined;
-		if( waiting.length > 0 )
+		if( waiting.length )
 			reportWaiting();
 	},
 	setWaitingWarningTime = function( milliseconds ) {
