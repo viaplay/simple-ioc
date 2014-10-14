@@ -7,8 +7,9 @@
 		files = require( './files.js' )( path, fs, require( './log.js' )( 'files' ), require( 'path' ).dirname( module.parent.filename ), getFlag),
 		startedCallback,
 		started = false;
+
   var parseOpts = function (opts) {
-    if (typeof opts === 'undefined') return undefined;
+    if (typeof opts === 'undefined') return { singleton: true };
     if (typeof opts === 'boolean') return { singleton: (opts ? false : true) };
     return opts;
   };
@@ -21,8 +22,7 @@
 		return pub;
 	};
 	pub.registerRequired = function( name, required, lifecycleTransient ) {
-    var singleton = lifecycleTransient ? false : true;
-		container.register( name, required, { singleton: singleton });
+    container.register( name, required, parseOpts(lifecycleTransient));
 		return pub;
 	};
 	pub.registerDependency = function( name, loaded ) {
@@ -31,9 +31,9 @@
 	};
 	pub.registerLib = function( required ) {
 		if( typeof( required ) === 'string' )
-			container.registerLib( required, require( required ) );
+			container.registerLib( required, require( required ), { isLib: true, singleton: true } );
 		else
-			container.register( undefined, required, { singleton: true });
+			container.register( undefined, required, { isLib: true, singleton: true });
 		return pub;
 	};
 	pub.autoRegister = function( relativePath ) {
@@ -132,7 +132,7 @@
 	};
 	pub.multiRegisterSingletons = function( components ) {
 		for( var name in components )
-			pub.register( name, components[ name ] );
+			pub.register( name, components[ name ], { singleton: true } );
 		return pub;
 	};
 	pub.multiRegisterLibs = function( libs ) {

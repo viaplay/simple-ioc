@@ -10,9 +10,8 @@ module.exports = function( log ) {
 	},
 	register = function( name, fn, opts ) {
     opts = opts || {};
-    var singleton = opts.singleton;
-    var isLib = opts.isLib;
-    var noresolve = opts.noResolve;
+    var singleton = opts.singleton || true;
+    var isLib = opts.isLib || false;
 
 		name = name || ( 'lib' + libCount++ );
 		log.trace( 'registering', name );
@@ -23,10 +22,9 @@ module.exports = function( log ) {
 				fn: fn,
 				singleton: singleton,
 				resolved: false,
-        noresolve: noresolve
 			};
 			if( isLib ) components[ name ].hasUsage = true;
-			var dependencies = noresolve ? [] : getDependencies( name );
+			var dependencies = getDependencies( name );
 			components[ name ].dependencies = dependencies;
 			if( ( dependencies.indexOf( 'iocParentName' ) >= 0 ) && singleton ) {
 				log.error( 'Cannot register a component as singleton if it has iocParentName as dependency, switching to transient', name );
@@ -152,8 +150,6 @@ module.exports = function( log ) {
 					wrapComponent( parentName, name, component.instance, callback );
 				else
 					callback( component.instance );
-      else if (component.noresolve)
-        callback( component.fn );
 			else {
 				log.debug( 'resolving', name );
 				startWaiting( name );
@@ -167,11 +163,7 @@ module.exports = function( log ) {
 					if( component.singleton ) {
 						log.debug( instance ? 'resolved singleton' : 'only injected singleton', name );
 						component.resolved = true;
-					} else if( component.noresolve ) {
-						log.debug( 'injected as is', name );
-						component.resolved = true;
-          }
-					else
+          } else
 						log.debug( instance ? 'resolved transient' : 'only injected transient', name );
 					if( component.singleton )
 						component.instance = instance;

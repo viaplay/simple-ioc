@@ -42,11 +42,11 @@ module.exports = function( path, fs, log, basePath, getFlag ) {
       else if( isValidFileType( fullPath ) ) {
         var flag = getFlag(fullPath);
         if (!flag) {
-          fn( path.basename( fullPath, path.extname( fullPath ) ), fullPath );
+          fn( path.basename( fullPath, path.extname( fullPath ) ), fullPath , { singleton: true });
         } else {
           if (flag === 'noresolve') {
-            log.debug('files', 'File "' + fullPath + '" marked with ioc:noresolve. Registering as is.');
-            fn( path.basename( fullPath, path.extname( fullPath ) ), fullPath, { noResolve: true });
+            console.log('files', 'File "' + fullPath + '" marked with ioc:noresolve. Registering as is.');
+            fn( path.basename( fullPath, path.extname( fullPath ) ), require(fullPath));
           } else if (flag === 'ignore') {
             log.debug('files', 'File "' + fullPath + '" marked with ioc:ignore. Skipping.');
           }
