@@ -45,10 +45,10 @@ module.exports = function( path, fs, log, basePath, getFlag ) {
           fn( path.basename( fullPath, path.extname( fullPath ) ), fullPath , { singleton: true });
         } else {
           if (flag === 'noresolve') {
-            console.log('files', 'File "' + fullPath + '" marked with ioc:noresolve. Registering as is.');
+            log.trace('files', path.basename(fullPath) + ' marked with ioc:noresolve. Registering as is.');
             fn( path.basename( fullPath, path.extname( fullPath ) ), require(fullPath));
           } else if (flag === 'ignore') {
-            log.debug('files', 'File "' + fullPath + '" marked with ioc:ignore. Skipping.');
+            log.trace('files', path.basename(fullPath) + ' marked with ioc:ignore. Skipping.');
           }
         }
       }

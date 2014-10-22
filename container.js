@@ -27,7 +27,7 @@ module.exports = function( log ) {
 			var dependencies = getDependencies( name );
 			components[ name ].dependencies = dependencies;
 			if( ( dependencies.indexOf( 'iocParentName' ) >= 0 ) && singleton ) {
-				log.error( 'Cannot register a component as singleton if it has iocParentName as dependency, switching to transient', name );
+				log.info( 'Cannot register a component as singleton if it has iocParentName as dependency, switching to transient', name );
 				components[ name ].singleton = false;
 			}
 			var unusedDependencies = [];
