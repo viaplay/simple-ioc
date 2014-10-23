@@ -135,6 +135,10 @@
 			pub.register( name, components[ name ], { singleton: true } );
 		return pub;
 	};
+	pub.removeRegistered = function( name ) {
+		container.removeRegistered( name );
+		return pub;
+	};
 	pub.multiRegisterLibs = function( libs ) {
 		libs.forEach( function( lib ) {
 			pub.registerLib( lib );

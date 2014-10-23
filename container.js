@@ -40,6 +40,9 @@ module.exports = function( log ) {
 			log.debug( 'registered', name );
 		}
 	},
+	removeRegistered = function( name ) {
+		delete components[ name ];
+	},
 	registerDependency = function( name, loaded ) {
 		if( components[ name ] )
 			log.debug( 'Dependency already registered, using existing', name );
@@ -341,6 +344,7 @@ module.exports = function( log ) {
 		setLogger: setLogger,
 		wrap: wrap,
 		registerDependency: registerDependency,
-		getUnreferedComponentNames: getUnreferedComponentNames
+		getUnreferedComponentNames: getUnreferedComponentNames,
+		removeRegistered: removeRegistered
 	};
 };
