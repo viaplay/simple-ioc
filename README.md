@@ -93,7 +93,7 @@ ioc.setLogLevel( 1 ); // Will cause the ioc to only outputs FATAL and ERROR logs
 <a name="register" />
 ### register( name, pathOrLoaded, lifecycleTransient )
 
-Regsisters a component in the ioc.
+Registers a component in the ioc.
 
 __Arguments__
 
@@ -156,7 +156,7 @@ ioc.autoRegister( './app' ); // Registers all files in the folder 'app'
 <a name="start" />
 ### start( callback )
 
-Resolves and injects all registerd components that do not have a transient lifecycle.
+Resolves and injects all registered components that do not have a transient lifecycle.
 
 __Arguments__
 
