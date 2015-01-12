@@ -12,10 +12,9 @@ Simple-ioc is installed from npm.
 npm install simple-ioc
 ```
 
-## Basic concept and simple example
+## Basic usage and simple example
 
-TODO
-
+The following is a simple example of how to use simple-ioc
 
 ### Example of usage
 ```javascript
