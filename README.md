@@ -562,16 +562,71 @@ require( 'simple-ioc' )
 <a name="registerGlobalWrappersFromSettings">
 ### registerGlobalWrappersFromSettings( settingsKey )
 </a>
-TODO
+Simple-ioc offers a method of wrapping methods in components of registered components. This can be useful if interception of calls are needed for tracking or debugging.
 
 #### Arguments
 
+* `settingsKey` the key in settings that specifies which components should be wrapped
+
 #### Returns
+The container.
 
 #### Remarks
+Wrappers can implement functions `async` and or `sync`, see example of usage. Wrapping is global and affects all containers in the ioc. 
 
 #### Example
-
+```javascript
+require( 'simple-ioc' )
+    .setSettings( {
+        wrapping: {
+            request: 'requestWrapper',
+            module1: 'syncWrapper'
+        }
+    } )
+    .registerResolved( {
+        request: require( 'request' )
+    } )
+    .registerInjectable( {
+        module1: function( pub ) {
+            pub.func = function( param1, param2 ) {
+                return param1 + param2;
+            };
+        },
+        requestWrapper: function( assert, pub ) {
+            pub.async = function( context, arguments, callback ) {
+                assert.equal( context.async, true );
+                var wrappedComponent = context.parentName; // e.g. request
+                var wrappedFunction = context.wrappedFunction; // e.g. get
+                var timeOfExecution = context.ts;
+                var executionTime = context.executionTime;
+                var result = context.result;
+                var argumentsToFunction = arguments; // e.g. [ 'www.google.com' ]
+                // Do something with this information, e.g. logging
+                callback( function( err, result ) { // Will be invoked when on async callback
+                    // Do some more logging... e.g. time = Date.now() - timeOfExecution;
+                } );
+            }
+        },
+        syncWrapper: function( assert, pub ) {
+            pub.sync = function( context, arguments, result ) {
+                assert.equal( context.sync, true );
+                var wrappedComponent = context.parentName; // e.g. module1
+                var wrappedFunction = context.wrappedFunction; // e.g. func
+                var timeOfExecution = context.ts;
+                var argumentsToFunction = arguments; // e.g. [ 1, 2 ]
+                var resultOfInvokation = result; // e.g. 3
+                // Do something with this information, e.g. logging
+            };
+        }
+    } )
+    .registerGlobalWrappersFromSettings( 'wrapping' )
+    .inject( function( request, module1 ) {
+        request.get( 'www.google.com', function( err, res, body ) {
+            // wrapper has been called before request and when responce is received.
+        } );
+        var result = module1.func( 1, 2 ); // wrapper has been called
+    } );
+```
 ---
 
 <a name="autoRegisterPath">
