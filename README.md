@@ -2,7 +2,7 @@
 Simple-ioc is a module for simple inversion of control for node.js. Main features are:
 
 * Easy dependency injection without special syntax - in most cases modules can be used without simple-ioc.
-* Easy exchanability of components - settings can determine which components that should be used in different environments.
+* Easy exchangeability of components - settings can determine which components that should be used in different environments.
 * Automatic asynchronous resolving - components are only resolved when all dependencies are resolved
 
 ## Installation
@@ -59,7 +59,7 @@ module.exports = require( 'simple-ioc' )
 <a name="reservedDependencies">
 ### Reseved dependencies
 </a>
-Simple has a number of reserved dependencies that cannot be registered in containers, these are:
+Simple-ioc has a number of reserved dependencies that cannot be registered in containers, these are:
 
 * [`pub`](#public)
 * [`parentName`](#parentName)
@@ -158,7 +158,7 @@ var container = require( 'simple-ioc' )
 <a name="moduleSetup">
 #### setup
 </a>
-In future versions of simple-ioc it will be possible to automatically create test-subs for component. For components that needs to be setup with external dependencies, it might be necessary to resolve components without a "real" setup, so simple-ioc can inspect the component. To prepeare for this it is possible to use `setup`. In normal use setup can be invoked with a function that will be called when the component is resolved.
+In future versions of simple-ioc it will be possible to automatically create test-stubs for component. For components that needs to be setup with external dependencies, it might be necessary to resolve components without a "real" setup, so simple-ioc can inspect the component. To prepeare for this it is possible to use `setup`. In normal use setup can be invoked with a function that will be called when the component is resolved.
 
 Note that this this is not implemented yet, but might be a good idea to use.
 
@@ -401,7 +401,7 @@ Packages that have a simple name (without special characters, such as "-") and a
 #### Example
 ```javascript
 var container = require( 'simple-ioc' ).getContainer()
-	.registerResolved( async: require( 'async' ) ) // Registers http
+	.registerResolved( async: require( 'async' ) ) // Registers async
 	.registerResolved( { // Registers express and request
 		express: require( 'express' ),
 		request: require( 'request' )
@@ -470,7 +470,7 @@ var container = require( 'simple-ioc' ).getContainer()
 <a name="mock">
 ### mock( name, properties )
 </a>
-Simple-ioc has a built-in mocking function, making it easier to mock modules with sync and async functions. Moch is not supposed to be used in production code, but rather in tests.
+Simple-ioc has a built-in mocking function, making it easier to mock modules with sync and async functions. Mock is not supposed to be used in production code, but rather in tests.
 
 #### Arguments
 
