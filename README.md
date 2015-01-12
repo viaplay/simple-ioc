@@ -213,12 +213,12 @@ var container = require( 'simple-ioc' )
 
 [log](#log)
 
-* [`fatal()`](#logFatal)
-* [`error()`](#logError)
-* [`warning()`](#logWrning)
-* [`info()`](#logInfo)
-* [`debug()`](#logDebug)
-* [`trace()`](#logTrace)
+* [`fatal( message, [ data ] )`](#logFatal)
+* [`error( message, [ data ] )`](#logError)
+* [`warning( message, [ data ] )`](#logWrning)
+* [`info( message, [ data ] )`](#logInfo)
+* [`debug( message, [ data ] )`](#logDebug)
+* [`trace( message, [ data ] )`](#logTrace)
 * [`getEntries( [componentName] )`](#getEntries)
 * [`reset()`](#logReset)
 
@@ -1171,3 +1171,44 @@ log.reset();
 assert.equal( log.getEntries()[ 0 ].length, 0 );
 ```
 ---
+
+<a name="errRerouter">
+## errRerouter( callback, successFn )
+</a>
+Simple ioc offers a small helper function to route errors to calling component, this component is optional to use, but might be handy in some situations.
+
+#### Arguments
+* `callback` the callback to send error to
+* `successFn` function to call if first argument evaluates as false.
+
+#### Returns
+The rerouter
+
+#### remarks
+None.
+
+#### Example
+```javascript
+module.exports = function( pub, errRerouter, someErrorThrowingAsyncComponent ) {
+    pub.get = function( callback ) {
+        someErrorThrowingAsyncComponent.get( errRerouter( callback, function( data ) {
+            callback( undefined, data.someData ); // Just implement "happy-flow"
+        } ) );
+    };
+};
+```
+
+Is equivalent to
+
+```javascript
+module.exports = function( pub, someErrorThrowingAsyncComponent ) {
+    pub.get = function( callback ) {
+        someErrorThrowingAsyncComponent.get( function( err, data ) {
+            if( err )
+                callback( err ); // Check for error needed
+            else
+                callback( undefined, data.someData );
+        } );
+    };
+};
+```
