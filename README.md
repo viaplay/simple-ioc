@@ -1,443 +1,1173 @@
-simple-ioc
-==========
+# simple-ioc
+Simple-ioc is a module for simple inversion of control for node.js. Main features are:
 
-Simple Dependency Injection for node.js
+* Easy dependency injection without special syntax - in most cases modules can be used without simple-ioc.
+* Easy exchanability of components - settings can determine which components that should be used in different environments.
+* Automatic asynchronous resolving - components are only resolved when all dependencies are resolved
 
 ## Installation
+Simple-ioc is installed from npm.
 
 ```
 npm install simple-ioc
 ```
 
-## Synopsis
+## Basic concept and simple example
 
-An example of setting up the ioc
+TODO
+
+
+### Example of usage
+```javascript
+// ./lib/store.js
+module.exports = function( databaseAdapter, callback ) {
+	databaseAdapter.connect( function( err, connection ) {
+		if( err ) {
+        	console.log( err );
+        	process.exit( 1 ); // Application cannot start!
+        }
+		else {
+        	var pub = {};
+			pub.getData = function( callback ) {
+				connection.query( callback );
+			};
+            callback( pub );
+		}
+	} );
+};
+```
+
+```javascript
+// ./lib/module1.js
+module.exports = function( pub, store ) {
+	pub.printData = function() {
+    	store.getData( function( err, data ) {
+    	} );
+    };
+};
+```
+
+```javascript
+// ./index.js
+module.exports = require( 'simple-ioc' )
+	.getContainer()
+    .registerResolved( 'databaseAdapter', require( 'some-database-adapter' )
+    .autoRegisterPath( './lib' )
+    .inject( function( module1 ) {
+    	module1.printdata();
+    } );
+```
+<a name="reservedDependencies">
+### Reseved dependencies
+</a>
+Simple has a number of reserved dependencies that cannot be registered in containers, these are:
+
+* [`pub`](#public)
+* [`parentName`](#parentName)
+* [`callback`](#iocCallback)
+* [`setup`](#moduleSetup)
+
+Additionally every container has the following pre-registered components, which makes them virtually reserved as well:
+
+* [`ioc`](#ioc)
+* [`container`](#container)
+* [`errRerouter`](#errRerouter)
+
+<a name="public">
+#### pub
+</a>
+A module can return its instance in two ways, either by creating the instance itself and returing it (or by using it as the argument asynchronously to the callback, see section [`callback`](#iocCallback) for more information) or by depending on `pub` and attaching properties to this object.
+
+The use of `pub` is optional. It might be handy but it complicates using the module without the ioc, so use it only when you feel comfortable with simple-ioc. 
+
+Example:
+```javascript
+module.exports = function() {
+	var pub = {};
+    pub.func = function() {};
+	return pub;
+};
+```
+is equivalent to:
+```javascript
+module.exports = function( pub ) {
+	pub.func = function() {};
+};
+```
+
+If using `pub` the module is more complex to resolve without the ioc. It can still be done by doing something like this:
+
+```javacript
+var resolved = {};
+myModule( resolved );
+```
+
+<a name="parentName">
+#### parentName
+</a>
+Normally all components registered in a container have a singleton lifestyle, but for some components this is not desired. To make a component transient simply let it depend on `parentName`. This way the component will be resolved everytime it is injected.
+
+Example:
+
+```javascript
+var container = require( 'simple-ioc' )
+	.getContainer()
+    .registerInjectable( {
+    	transientModule: function( parentName ) {
+        	return function() {
+            	console.log( parentName );
+            };
+        },
+        singletonModule1: function( transientModule ) {
+        	return transientModule;
+        },
+        singletonModule2: function( transientModule ) {
+        	return transientModule;
+        }
+    } )
+    .inject( function( singletonModule1, singletonModule2 ) {
+    	singletonModule1(); // Will output "singletonModule1"
+    	singletonModule2(); // Will output "singletonModule2"
+    } );
+```
+
+<a name="iocCallback">
+#### callback
+</a>
+Some components might need asynchronous calls before they can be used. By depending on `callback` the container waits for the callback to be invoked before it considers the component ready. If [`pub`](#pub) is not used the resolved instance should be used as the first argument to `callback`.
+
+Example:
+```javascript
+var container = require( 'simple-ioc' )
+	.getContainer()
+    .registerInjectable( {
+    	asyncModule: function( callback ) {
+        	var pub = {};
+			someAsyncSetup( function( err, something ) {
+            	pub.func = function() {
+                	something();
+                };
+                callback( pub );
+            } );
+		}
+    } )
+    .inject( function( asyncModule ) {
+    	asyncModule.fun(); // asyncModule is ready to be used
+    } );
+```
+
+<a name="moduleSetup">
+#### setup
+</a>
+In future versions of simple-ioc it will be possible to automatically create test-subs for component. For components that needs to be setup with external dependencies, it might be necessary to resolve components without a "real" setup, so simple-ioc can inspect the component. To prepeare for this it is possible to use `setup`. In normal use setup can be invoked with a function that will be called when the component is resolved.
+
+Note that this this is not implemented yet, but might be a good idea to use.
+
+Example:
+```javascript
+var container = require( 'simple-ioc' )
+	.getContainer()
+    .registerInjectable( {
+    	module1: function( setup, callback ) {
+        	var pub = {},
+            	something;
+            pub.func = function() {
+                something();
+            };
+            setup( function() {
+				someAsyncSetup( function( err, _something ) {
+                	something = _something;
+    	            callback( pub );
+        	    } );
+			} );
+		}
+    } );
+```
+
+## Documentation
+
+[ioc](#ioc)
+
+* [`getContainer()`](#getContainer)
+* [`setSettings( settings1, settings2, settings3, ... )`](#setSettings)
+* [`getSettings()`](#getSettings)
+* [`useLogWriter( resolvedWriter )`](#useLogWriter)
+
+[container](#container)
+
+* [`registerResolved( name, instance )`](#registerResolved)
+* [`registerInjectable( name, fn )`](#registerInjectable)
+* [`mock( name, properties )`](#mock)
+* [`registerGlobalWrappersFromSettings( settingsKey )`](#registerGlobalWrappersFromSettings)
+* [`autoRegisterPath( relativePath, [omitFileIocComments], [omitFileLengthLogging] )`](#autoRegisterPath)
+* [`resolve( name, callback )`](#resolve)
+* [`registerIocSettings( name )`](#registerIocSettings)
+* [`registerIocLog( name )`](#registerIocLog)
+* [`resolveAllAndInject( fn )`](#resolveAllAndInject)
+* [`injectAfterResolveAll( fn )`](#injectAfterResolveAll)
+* [`inject( fn, [callback] )`](#inject)
+* [`registerResolvedIfSetting( settingKey, name, instance )`](#registerResolvedIfSetting)
+* [`registerInjectableIfSetting( settingKey, name, fn )`](#registerInjectableIfSetting)
+* [`autoRegisterPathInSetting( settingKey )`](#)
+* [`removeRegistered( name )`](#removeRegistered)
+
+[log](#log)
+
+* [`fatal()`](#logFatal)
+* [`error()`](#logError)
+* [`warning()`](#logWrning)
+* [`info()`](#logInfo)
+* [`debug()`](#logDebug)
+* [`trace()`](#logTrace)
+* [`getEntries( [componentName] )`](#getEntries)
+* [`reset()`](#logReset)
+
+[errRerouter](#errRerouter)
+
+* [`( callback, fn )`](#errRerouter)
+
+<a name="ioc">
+## ioc
+</a>
+
+The main function of the ioc is to create containers, but it also has a built-in log and settings.
+
+---
+
+<a name="getContainer">
+### getContainer()
+</a>
+Creates a new container.
+
+#### Arguments
+None.
+
+#### Returns
+A new container.
+
+#### Remarks
+The ioc, the container itself and errRerouter is registered automaticaly to the new container.
+
+#### Example
+```javascript
+var container = require( 'simple-ioc' ).getContainer()
+```
+
+---
+<a name="setSettings">
+### setSettings( settings1, settings2, settings3, ... )
+</a>
+Sets the settings the ioc will read, initially the sttings will have a log-property, see section [log](#log) for more information about the built-in logger.
+
+#### Arguments
+Variable amount of objects with settings, the settings will be merged with the existing settings.
+
+#### Returns
+The ioc.
+
+#### Remarks
+The ioc has 4 built-in output-writers, these are
+
+* consoleJson - More or less console.log( JSON.stringify( logObject ) )
+* consoleReadable - Logs in a readable format, with some coloring of level
+* devNull - writes nothing
+* memoryJson - writes to memory, which is searchable afterwards. This should never be used in production, only in tests.
+
+The default settings are:
+```
+{
+	log: {
+		level: 0,
+		includeEnvironemtVariables: { env: 'NODE_ENV' },
+		output: 'devNull'
+	}
+}
+```
+
+#### Example
+```javascript
+require( 'simple-ioc' ).setSettings(
+	{
+		log: {
+			level: 3
+		}
+    },
+	{
+		log: {
+			output: 'consoleReadable'
+		}
+	}
+);
+/*
+will result in the following settings
+{
+	log: {
+		level: 3,
+		includeEnvironemtVariables: { env: 'NODE_ENV' },
+		output: 'consoleReadable'
+	}
+}
+*/
+```
+
+---
+<a name="getSettings">
+### getSettings()
+</a>
+Gets the settings the ioc uses. See [registerIocSettings](#registerIocSettings) how to register settings in a container for injection.
+
+#### Arguments
+None.
+
+#### Returns
+The registered settings
+
+#### Remarks
+Normally this function is not used, instead settings are injected, but might be useful for debugging.
+
+#### Example
+```javascript
+require( 'simple-ioc' ).setSettings( {
+	key: 'value'
+} ).getSettings();
+/* Will return
+{
+	log: {
+		level: 0,
+		includeEnvironemtVariables: { env: 'NODE_ENV' },
+		output: 'devNull'
+	},
+    key: 'value'
+}
+*/
+```
+
+---
+
+<a name="useLogWriter">
+### useLogWriter( resolvedWriter )
+</a>
+The built-in logger (see [log](#log) for information) can also use a external output writer, it must implement the following functions:
+
+* output( logObject ) - called on every log that is on a level that should be logged.
+* getEntries( component ) - can be implemented, but should not be used in production.
+* reset() - to reset the log entries.
+
+#### Arguments
+* `resolvedWriter` an object that implements at least output( logObject )
+
+#### Returns
+The ioc.
+
+#### Remarks
+None.
+
+#### Example
+```javascript
+require( 'simple-ioc' ).useLogWriter( {
+	output: function( logObject ) {
+		console.log( logObject.level );
+	}
+} );
+// Will only ouptut the level of the log (numeric) to the console.
+```
+
+***
+
+## container
+
+Containers are the central part of the ioc, it stores and resolves components.
+
+Note: All functions on the container returns the container itself.
+
+<a name="registerResolved">
+### registerResolved( name, instance )
+</a>
+Registers a already resolved component to the container, e.g. external componens like "express".
+
+#### Arguments
+* name - the identifying name of the component
+* instance - the resolved instance
+
+OR
+
+* name - An object with key/value pairs reprecenting names/instances
+
+#### Returns
+The container
+
+#### Remarks
+Packages that have a simple name (without special characters, such as "-") and are possible to require within the current scope, does not need to be registered. For example, a module can have a dependency to "http" without it being registered. If a dependency exists to a component that is not registered, the container will try to require the name of the dependency and register it as a singleton if successful.
+
+#### Example
+```javascript
+var container = require( 'simple-ioc' ).getContainer()
+	.registerResolved( async: require( 'async' ) ) // Registers http
+	.registerResolved( { // Registers express and request
+		express: require( 'express' ),
+		request: require( 'request' )
+	} )
+    .inject( function( express, http, request, async ) {
+    	// Will succeed since the container will register http automatically.
+    } );
+```
+
+***
+
+### registerInjectable( name, fn )
+Registers an injectable component in the container, this method should normally be used when registering internal libraries which can use their own containers.
+
+#### Arguments
+* name - the identifying name of the component
+* fn - the injectable function
+
+OR
+
+* name - An object with key/value pairs reprecenting names/instances
+
+#### Returns
+The container.
+
+#### Remarks
+Injectable functions has some reserved parameternames used by the ioc, these cannot be registered or used as normal dependencies. See [Reserved dependencies](#reservedDependencies) for more information.
+
+#### Example
+```javascript
+var container = require( 'simple-ioc' ).getContainer()
+	.registerInjectable( 'myComponent', function( pub, callback ) {
+		pub.func1 = function( params ) {
+			return whatEver;
+		};
+		doSomething( function() {
+			callback();
+		} )
+	} ) // Registers a singleton component that has an async setup and a function func1 as myComponent
+	.registerInjectable( {
+		anotherComponent: function( setup, pub, callback ) {
+			setup( function() {
+				someSetup( function() {
+					pub.xxx = function() {
+						return amazingStuff;
+					};
+					callback();
+				} );
+			} );
+			// Registers a singleton component that has a setup that also is async. The result is a
+			// component registered as anotherComponent with a function xxx.
+		},
+		yetAnother: function( parentName ) {
+			return {
+				func3: function() {
+					return parentName;
+				}
+			};
+			// Registeres a transient component as yetAnother with a function func3. Everytime yetAnother
+			// is injected the registered function will be called, creating a new enclosed scope.
+		}
+	} );
+```
+
+---
+<a name="mock">
+### mock( name, properties )
+</a>
+Simple-ioc has a built-in mocking function, making it easier to mock modules with sync and async functions. Moch is not supposed to be used in production code, but rather in tests.
+
+#### Arguments
+
+* `name` name of the component to mock
+* `properties` the properties to mock with functions, setting the default value of the mocked function
+
+or
+
+* `name` an object with key/value pairs reprecenting names/properties
+
+#### Returns
+The container
+
+#### Remarks
+Mocking of modules by using "mock" might not be totaly straight forward and cannot be used in every mocking situation. See the example how a possible way to use it and how to achieve the same result without using mock. The values of mocked functions can be changed by setting the properties later.
+
+Mock checks when a function is invoked, if last parameter is a function it will treat is as an async function.
+
+#### Example
 
 ```javascript
 require( 'simple-ioc' )
-	.setLogLevel( 3 )
-	.register( 'settings', require( './configuration/settings' ) )
-	.register( 'packageInfo', require( './package.json' ) )
-	.register( 'amqp', require( 'amqp' ) )
-	.autoRegister( './lib/' )
-	.register( 'app', './handlers/itemQueryHandler.js' )
-	.start( function( packageInfo, ioc ) {
-		// ioc not used here but can be injected
-		console.log( 'Application started, version:', packageInfo.version );
-	} );
+	.getContainer()
+    .mock( {
+    	module1: {
+        	sync: 'syncVal',
+            async: 'asyncVal'
+        }
+    } )
+    .registerResolved( { // module2 is mocked without using mock
+    	module2: {
+        	sync: function() {
+            	return 'syncVal';
+            },
+            async: function( param1, callback ) {
+            	callback( undefined, 'asyncVal' ); 
+            }
+        }
+    } )
+    .inject( function( assert, module1, module2 ) {
+		// Sync
+		assert.equal( module1.sync(), 'syncVal' );
+    	assert.equal( module2.sync(), 'syncVal' );
+        // Async
+    	module1.async( 'test', function( err, value ) {
+        	assert.ok( !err );
+			assert.equal( value, 'asyncVal' );
+		} );
+    	module2.async( 'test', function( err, value ) {
+        	assert.ok( !err );
+			assert.equal( value, 'asyncVal' );
+		} );
+        // Changing sync
+        module1.sync = 'newSyncVal'; // Changing what sync will return when invoked
+        module2.sync = function() { // ... same without mock
+        	return 'newSyncVal';
+        };
+    	assert.equal( module1.sync(), 'newSyncVal' );
+    	assert.equal( module2.sync(), 'newSyncVal' );
+        // Changing async
+        module1.async = 'newAsyncVal'; // Changing what async will callback when invoked
+        module2.async = function( param1, callback ) { // ... same without mock
+        	callback( undefined, 'newAsyncVal' ); 
+		};
+    	module1.async( 'test', function( err, value ) {
+        	assert.ok( !err );
+			assert.equal( value, 'newAsyncVal' );
+		} );
+    	module2.async( 'test', function( err, value ) {
+        	assert.ok( !err );
+			assert.equal( value, 'newAsyncVal' );
+		} );
+        // Change so async callbacks an error
+		module1.async.err = 'myError'; // Change async so it callbacks with an error
+        module2.async = function( param1, callback ) { // ... same without mock
+        	callback( 'myError' ); 
+		};
+    	module1.async( 'test', function( err, value ) {
+        	assert.equal( err, 'myError' );
+		} );
+    	module2.async( 'test', function( err, value ) {
+        	assert.equal( err, 'myError' );
+		} );
+    } );
 ```
 
-An example of an injected component, in this case './handlers/itemQueryHandler.js'
+---
 
+<a name="registerGlobalWrappersFromSettings">
+### registerGlobalWrappersFromSettings( settingsKey )
+</a>
+TODO
+
+#### Arguments
+
+#### Returns
+
+#### Remarks
+
+#### Example
+
+---
+
+<a name="autoRegisterPath">
+### autoRegisterPath( relativePath, [omitFileIocComments], [omitFileLengthLogging] )
+</a>
+Register all files in the given path, using function name or, if not existing, the file name as name of component.
+
+#### Arguments
+* `relativePath` relative path or absolut path that th container will recursively look in.
+* `omitFileIocComments` (optinal) default false, if true, the container will not look for ioc specific comments.
+* `omitFileLengthLogging` (optional) default false, if true, no warnings for long files.
+
+#### Returns
+The container.
+
+#### Remarks
+Files that contains the followin comments will be handeled different by autoRegisterPath:
+
+* `/* ioc:ignore */` - file will be ignored.
+* `/* ioc:noresolve */` - file will be registered as resolved
+
+If omitFileLengthLogging is not set, the ioc will info log if files exceed 100 lines and warning log if files exceed 200 lines.
+
+Normally the ioc uses the name of the file as name of the component, but if the function is not anonymous, the name of the function is used.
+
+#### Example
 ```javascript
-module.exports = function( settings, amqp ) {
-
-	...some code...
-
-	return {
-		...something...
-	};
+// ./lib/module1.js
+module.exports = function( pub ) {
+	pub.name = 'mod1';
 };
 ```
 
-## Concepts
-Files that are injectable normally looks like this:
-
 ```javascript
-module.exports = function( dependency1, dependency2... ) {
-	// code
+// ./lib/module2.js
+module.exports = function( pub, module1 ) {
+	pub.name = [ module1.name, 'mod2' ].join( '.' );
 };
 ```
 
-Components that needs to be loaded asynchroniously can, by convension in the ioc, depend on a ```readyCallback```, what ever that is used as the first parameter to this function will be loaded in the ioc.
-
 ```javascript
-module.exports = function( readyCallback ) {
-	setTimeout( function() {
-		readyCallback( { val: 4 } );
-	}, 1000 );
+// ./lib/module3ButWithAnotherName.js
+module.exports = function module3( pub, module2 ) {
+	pub.name = [ module2.name, 'mod3' ].join( '.' );
 };
 ```
 
-## Methods
----------------------------------------
-<a name="setLogLevel" />
-### setLogLevel( level )
-
-Sets the minimum level of logs to cause an output, this only affects the ioc's logging.
-
-NOTE: All FATAL errors also exists the application.
-
-__Arguments__
-
-* level - minimum level
-
-NOTE: Possible values:
-- `0`: FATAL
-- `1`: ERROR
-- `2`: WARNING
-- `3`: INFO
-- `4`: DEBUG
-- `5`: TRACE
-
-__Returns__
-
-The ioc
-
-__Example__
-
-```js
-ioc.setLogLevel( 1 ); // Will cause the ioc to only outputs FATAL and ERROR logs.
+```javascript
+// ./index.js
+module.exports = require( 'simple-ioc' )
+	.getContainer()
+    .autoRegisterPath( './lib' )
+    .inject( function( module3 ) {
+    	console.log( module3.name ); // Will print out "mod1.mod2.mod3"
+    } );
 ```
----------------------------------------
-<a name="register" />
-### register( name, pathOrLoaded, lifecycleTransient )
+---
+<a name="resolve">
+### resolve( name, callback )
+</a>
 
-Regsisters a component in the ioc.
+#### Arguments
 
-__Arguments__
+* `name` name of the component to resolve
+* `callback( err, instance )` function to be called with the result of the resolve.
 
-* name - The name to identify the component when injecting
-* pathOrLoaded - Can either be a filepath, which will be required by the ioc and injected, all other types (objects, functions etc) will just be loaded into the ioc.
-* lifecycleTransient - Boolean, if set, the comopnent will be re-injected, when ever used as a dependency.
+#### Returns
+The container.
 
-__Returns__
+#### Remarks
+Resolve can safely be used anytime, since it callbacks an error if the component is unresolvable. 
 
-The ioc
-
-__Example__
-
-```js
-ioc
-	.register( 'async', require( 'async' ) ) // Registers the async library as async
-	.register( 'test', './test.js', true ); // Requires './test.js', and when used as dependency will be injected every time
-```
----------------------------------------
-<a name="registerRequired" />
-### registerRequired( name, required, lifecycleTransient )
-
-Regsisters a function that will be injected when used as a dependency in the ioc.
-
-__Arguments__
-
-* name - The name to identify the component when injecting
-* required - function that can be injected
-* lifecycleTransient - Boolean, if set, the comopnent will be re-injected, when ever used as a dependency.
-
-__Returns__
-
-The ioc
-
-__Example__
-
-```js
-ioc.registerRequired( 'myLibrary', require( 'my-library-in-node_modules' ) );
-```
----------------------------------------
-<a name="autoRegister" />
-### autoRegister( relativePath )
-
-Searches the path for files that ends with '.js' and registers all with the filename (exluding .js) as name.
-
-__Arguments__
-
-* relativePath - Path to folder or file.
-
-__Returns__
-
-The ioc
-
-__Example__
-
-```js
-ioc.autoRegister( './app' ); // Registers all files in the folder 'app'
-```
----------------------------------------
-<a name="start" />
-### start( callback )
-
-Resolves and injects all registerd components that do not have a transient lifecycle.
-
-__Arguments__
-
-* callback - Function that will be injected when all components are resolved. If setStartedCallback has been called, this function will also be injected.
-
-__Returns__
-
-The ioc
-
-__Example__
-
-```js
-ioc.start( function( async, myLibrary ) {
-	// Code that uses async and myLibrary
-} );
-```
----------------------------------------
-<a name="inject" />
-### inject( fn )
-
-Injects a function, similar to start, but will not resolve components that the function is not dependent of.
-
-__Arguments__
-
-* fn - Function that will be injected.
-
-__Returns__
-
-The ioc
-
-__Example__
-
-```js
-ioc.inject( function( async, myLibrary ) {
-	// Code that uses async and myLibrary
-} );
-```
----------------------------------------
-<a name="reset" />
-### reset()
-
-Resets the ioc by removing all components, normally used in tests
-
-__Returns__
-
-The ioc
-
-__Example__
-
-```js
-ioc
-	.register( 'test', { val: 1 } )
-	.reset()
-	.inject( function( test ) {
-		// Will cause an fatal error, since test is no longer registered in the ioc.
-	} );
-```
----------------------------------------
-<a name="setStartedCallback" />
-### setStartedCallback( fn )
-
-Sets a function that will be injected after start is finished. If starts was called earlier, the function will be called directly.
-
-__Arguments__
-
-* fn - Function that will be injected after start
-
-__Returns__
-
-The ioc
-
-__Example__
-
-```js
-ioc.setStartedCallback( function( test ) {
-		console.log( test.toString() );
+#### Example
+```javascript
+var assert = require( 'assert' ); 
+module.exports = require( 'simple-ioc' )
+	.getContainer()
+    .registerInjectable( {
+    	test: function( pub ) {}
+    } )
+    .resolve( 'test', function( err, instance ) {
+		assert.ok( !err );
+        assert.ok( !!pub );
 	} )
-	.start();
+    .resolve( 'notRegistered', function( err, instance ) {
+		assert.ok( err );
+        assert.ok( !pub );
+	} )
 ```
----------------------------------------
-<a name="setSettings" />
-### setSettings( name, obj )
 
-Sets settings that is registered and the ioc can access.
+---
+<a name="registerIocSettings">
+### registerIocSettings( [ name ] )
+</a>
+Registers the ioc settings to the container with the specified name.
 
-__Arguments__
+#### Arguments
 
-* name - Identifying name of settings
-* obj - The settings, an object.
+* `name` the name settings should be registerd as, defaults to "settings"
 
-__Returns__
+#### Returns
+The container.
 
-The ioc
+#### Remarks
+None.
 
-__Example__
-
-```js
-ioc.setSettings( 'settings', { environment: 'test' } )
-	.start( function( settings ) {
-		console.log( settings.environment ); // Should output 'test'
+#### Example
+```javascript
+var assert = require( 'assert' ); 
+module.exports = require( 'simple-ioc' )
+	.setSettings( {
+    	key: 'value'
+    } )
+	.getContainer()
+    .registerIocSettings()
+    .inject( function( settings ) {
+		assert.equal( settings.key, 'value' );
 	} );
 ```
----------------------------------------
-<a name="conditionalAutoRegister" />
-### conditionalAutoRegister( settingsKey, conditionalValue, path )
 
-Reads settings, compares value to conditionalValue, if match perfoms a autoRegister
+---
 
-__Arguments__
+<a name="registerIocLog">
+### registerIocLog( [ name ] )
+</a>
+Registers the build-in ioc logger to the container with the specified name.
 
-* settingsKey - String to search for in settings, .-notated
-* conditionalValue - value to compare against
-* path - Path to folder or file.
+#### Arguments
 
-__Returns__
+* `name` the name settings should be registerd as, defaults to "log"
 
-The ioc
+#### Returns
+The container.
 
-__Example__
+#### Remarks
+None.
 
-```js
-ioc.setSettings( 'settings', { environment: 'test' } )
-	.conditionalAutoRegister( 'evironment', 'test', './lib' ); // Sould autoRegister './lib'
+#### Example
+```javascript
+var assert = require( 'assert' ); 
+module.exports = require( 'simple-ioc' )
+	.getContainer()
+    .registerIocLog( 'log' )
+    .inject( function( log ) {
+		assert.ok( !!log.info );
+	} );
 ```
----------------------------------------
-<a name="conditionalRegister" />
-### conditionalRegister( settingsKey, conditionalValue, name, pathOrLoaded, lifecycleTransient )
 
-Reads settings, compares value to conditionalValue, if match perfoms a register
+---
+<a name="resolveAllAndInject">
+### resolveAllAndInject( fn )
+</a>
+Resolves all components that are unresolved and registered with singleton lifestyle. Finally the `fn` function is injected.
 
-__Arguments__
+#### Arguments
 
-* settingsKey - String to search for in settings, .-notated
-* conditionalValue - value to compare against
-* name - The name to identify the component when injecting
-* pathOrLoaded - Can either be a filepath, which will be required by the ioc and injected, all other types (objects, functions etc) will just be loaded into the ioc.
-* lifecycleTransient - Boolean, if set, the comopnent will be re-injected, when ever used as a dependency.
+* `fn` function to inject after all registered injectable singleton components are resolved.
 
-__Returns__
+#### Returns
+The container.
 
-The ioc
+#### Remarks
+ResolveAllAndInject will log information about components that does not have any components that are depending on them.
 
-__Example__
-
-```js
-ioc.setSettings( 'settings', { environment: 'test' } )
-	.conditionalAutoRegister( 'evironment', 'test', 'some_component', require( 'some_component' ) ); // Sould register 'some_component'
+#### Example
+```javascript
+var assert = require( 'assert' ); 
+module.exports = require( 'simple-ioc' )
+	.getContainer()
+    .registerInjectable( {
+    	module1: function( pub ) {
+        	console.log( 'module1' );
+            pub.value = 'val1';
+        },
+        module2: function( module1, callback ) {
+        	console.log( 'module2' );
+            callback( {
+            	value: [ module1.value, 'val2' ].join( '.' );
+            } );
+        }
+    } )
+    .resolveAllAndInject( function() {
+    	console.log( 'injected' );
+    } );
+    // Will have the following output:
+    // module1
+    // module2
+    // injected
 ```
----------------------------------------
-<a name="conditionalRegisterRequired" />
-### conditionalRegister( settingsKey, conditionalValue, name, required, lifecycleTransient )
 
-Reads settings, compares value to conditionalValue, if match perfoms a registerRequired
+---
+<a name="inject">
+### inject( fn, [ callback ] )
+</a>
+Gives the possibility to inject anonymous functions
 
-__Arguments__
+#### Arguments
 
-* settingsKey - String to search for in settings, .-notated
-* conditionalValue - value to compare against
-* name - The name to identify the component when injecting
-* required - function that can be injected
-* lifecycleTransient - Boolean, if set, the comopnent will be re-injected, when ever used as a dependency.
+* `fn` function to inject.
+* `callback` optional, called after the functions is injected.
 
-__Returns__
+#### Returns
+The container
 
-The ioc
+#### Remarks
+None.
 
-__Example__
-
-```js
-ioc.setSettings( 'settings', { environment: 'test' } )
-	.conditionalRegisterRequired( 'evironment', 'test', 'some_component', function( settings ) { return 'test'; } ); // Sould register 'some_component'
+#### Example
+```javascript
+var assert = require( 'assert' ); 
+module.exports = require( 'simple-ioc' )
+	.getContainer()
+    .registerInjectable( {
+    	module1: function( pub ) {
+            pub.value = 'val1';
+        },
+        module2: function( pub ) {
+        	pub.value = 'val2';
+        }
+    } )
+    .inject( function( assert, module1, module2 ) {
+    	assert.equal( module1.value, 'val1' );
+    	assert.equal( module2.value, 'val2');
+    } );
 ```
----------------------------------------
-<a name="setWaitingWarningTime" />
-### setWaitingWarningTime( milliseconds )
 
-Sets the amount of milliseconds the ioc waits for a component with a readyCallback to callback before it starts to warn
+---
+<a name="inject">
+### injectAfterResolveAll( fn )
+</a>
+Specify a function that is injected after resolve all is complete, can be used in, for example, system tests.
 
-__Arguments__
+#### Arguments
 
-* milliseconds - amount of milliseconds
+* `fn` function to inject
 
-__Returns__
+#### Returns
+The container.
 
-The ioc
+#### Remarks
+None.
 
-__Example__
-
-```js
-ioc.setWaitingWarningTime( 1000 ); // Will start to log warnings if components take more than 1 seconds to callback
+#### Example
+```javascript
+// ./index.js
+var assert = require( 'assert' ); 
+module.exports = require( 'simple-ioc' )
+	.getContainer()
+    .registerInjectable( {
+    	module1: function( pub, callback ) {
+            setTimeout( function() {
+            	pub.value = 'val1';
+            	callback();
+            }, 500 );
+        },
+        module2: function( pub ) {
+        	pub.value = 'val2';
+        }
+    } )
+    .resolveAllAndInject( function( assert, module1, module2 ) {
+		console.log( 'Application started' );
+    } );
 ```
-### wrap( name, wrapperName )
+```javascript
+// ./tests/system/test.js
+var container = require( '../../../index.js' )
+	.injectAfterResolveAll( function( module1 ) {
+    	assert.equal( module1.value, 'val1' );
+    } );
+```
 
-Wrap asynchronous component with name 'name' with the component with the name 'wrappedName' in order to measure for example its performance. The wrapped component can be either a function or an object. If it's a function it must have 'callback' as its last parameter. If it's an object each method of the object will be wrapped with the wrapper and these must each have 'callback' as their last parameter. 'wrappedName' is the name of a wrapper component that must only return a function with the following signature: function ( context, parameters, callback ).
+---
 
-context consists of
-* caller - the calling component
-* wrapped - the wrapped component
-* async - true/false (if the call was asyncronious)
+### registerResolvedIfSetting ( settingKey, name, instance )
+Registers an resolved component if settings indicates it should be registered. Used for example when a component only should be used in certain environments.
 
-The argument 'parameters' is an array with the parameters that is also sent to the wrapped function. The wrapper should not manipulate these but can read them.
+#### Arguments
+* settingKey - the dot notated key in settings (true/false)
+* name - the identifying name of the component
+* fn - the resolved component
 
-The callback must be called once the wrapper has done its own work and must be called with a callback that will be called when the wrapped function has finished.
+#### Returns
+The container.
 
-__Arguments__
+#### Remarks
+None.
 
-* name - the component to be wrapped (could be a function or object)
-* wrapperName - the wrapper that is registered in the ioc
+#### Example
+```javascript
+var container = require( 'simple-ioc' ).getContainer()
+	.setSettings( {
+		use: {
+			adapter: true
+		}
+	} )
+	.registerResolvedIfSetting( 'use.adapter', 'componentName', require( 'someResolvedComponent' ) ); // Will register required component as resolved
+```
 
-__Returns__
+***
 
-The ioc
+### registerInjectableIfSetting( settingKey, name, fn )
+Registers a injectable component if settings indicates it should be registered. Used for example when a component only should be used in certain environments.
 
-__Example__
+#### Arguments
+* settingKey - the dot notated key in settings (true/false)
+* name - the identifying name of the component
+* fn - the injectable function
 
-timingWrapper.js:
-```js
-module.exports = function () {
-	return function ( context, parameters, callback ) {
-		var start = Date.now();
-		callback( function () {
-			var totalTime = Date.now() - start;
-			console.log( name, 'with parent', parentName, 'was called with params', parameters );
-			console.log( 'it took', totalTime, 'ms');
-		})
-	}
+#### Returns
+The container.
+
+#### Remarks
+None.
+
+#### Example
+```javascript
+var container = require( 'simple-ioc' ).getContainer()
+	.setSettings( {
+		use: {
+			adapter: true
+		}
+	} )
+	.registerInjectableIfSetting( 'use.adapter', 'componentName', require( 'someInjectableComponent' ) ); // Will register required component as injectable
+```
+
+***
+
+### autoRegisterPathInSetting( settingKey )
+Auto registers path that is specified in the settings, can be used for example when different adapers are used in development and production.
+
+#### Arguments
+* settingKey - the dot notated key in settings that referes to the path
+
+#### Returns
+The container.
+
+#### Remarks
+None.
+
+#### Example
+```javascript
+var container = require( 'simple-ioc' ).getContainer()
+	.setSettings( {
+		use: {
+			adapter: '/myPath/adaper1'
+		}
+	} )
+	.autoRegisterPathInSetting( 'use.adapter' ); // Will auto register all files in the path '/myPath/adaper1'
+```
+
+***
+
+### removeRegistered( name )
+Removes an injectable unresolved component from the container, main purpose is to change behaviour in system-tests after an application is started with 'resolveAllAndInject'.
+
+#### Arguments
+* name - the identifying name of the component to remove from the container
+
+#### Returns
+The container.
+
+#### Remarks
+Only injectable components that has not yet been resolved can be removed.
+
+#### Example
+```javascript
+// ./index.js
+var assert = require( 'assert' ); 
+module.exports = require( 'simple-ioc' )
+	.getContainer()
+    .registerInjectable( {
+    	module1: function( pub, callback ) {
+            setTimeout( function() {
+            	pub.value = 'val1';
+            	callback();
+            }, 500 );
+        },
+        module2: function( pub, module1 ) {
+        	pub.value = module1.value;
+        }
+    } )
+    .resolveAllAndInject( function() {
+		console.log( 'Application started' );
+    } );
+```
+```javascript
+// ./tests/system/test.js
+var container = require( '../../../index.js' )
+	.removeRegistered( 'module1' )
+    .registerResolved( {
+    	module1: { value: 'newVal1' }
+    } )
+    .injectAfterResolveAll( function( assert, module2 ) {
+    	assert.equal( module2.value, 'newVal1' );
+    } );
+```
+
+---
+
+<a name="log">
+## log
+</a>
+The ioc has a built in logger that can be used externaly as well. The logger builds a logObject that looks like this:
+
+```javascript
+{
+	level: level,
+	message: message,
+	data: data,
+	component: parentName,
+	...environment variables specified in the settings
 }
 ```
 
-asyncTask.js:
-```js
-module.exports = function () {
-	return function ( callback ) {
-		setTimeout( callback, 100 )
-	}
-}
+In the log-settings you can specify envronment values that you would like to include in the log-objects
+```javascript
+includeEnvironemtVariables: { enviro: 'ENV_NAME' }
+// Would include ENV_NAME as "enviro"
 ```
 
-using the wrapper in the ioc:
-```js
-ioc.autoRegister( './timingWrapper.js' )
-	.autoRegister( './asyncTask.js' )
-	.wrap( 'asyncTask', 'timingWrapper' )
+---
+<a name="logFatal">
+### fatal( message, [ data ] )
+</a>
+
+#### Arguments
+
+* `message` log message
+* `data` optional dataobject that will be in the output
+
+#### Returns
+Undefined.
+
+#### Remarks
+After the log is written system.exit() is automatically called.
+
+#### Example
+
+```javascript
+log.fatal( 'Fatal error occured, not recoverable', err ); // Application will exit
 ```
----------------------------------------
-<a name="wrapFromSettings" />
-### wrap( settingsKey )
+---
 
-Registers werappers from settings
+<a name="logError">
+### error( message, [ data ] )
+</a>
 
-__Arguments__
+#### Arguments
 
-* settingsKey - The key to a settings-object which describes all wrappings
+* `message` log message
+* `data` optional dataobject that will be in the output
 
-__Returns__
+#### Returns
+Undefined.
 
-The ioc
+#### Remarks
+None.
 
-__Example__
+#### Example
 
-```js
-ioc.setSettings( 'settings', {
-	wrapTheseComponents: {
-		unwrapped: 'wrapper'
-	}
-} )
-.register( 'unwrapped', './unwrapped.js' )
-.register( 'wrapper', './wrapper.js' )
-.wrapFromSettings( 'wrapTheseComponents' );
-
+```javascript
+log.error( 'Error occured, request probably fails', err );
 ```
+---
 
-## File Annotations
+<a name="logWarning">
+### warning( message, [ data ] )
+</a>
 
-You can force ioc to ignore a file from autoregistering by adding
-```/* ioc:ignore */``` comment as a first line in file.
+#### Arguments
 
-You can tell ioc to skip resolving function by adding
-```/* ioc:noresolve */``` comment at the top. That way your module will be
-registered as is in ioc.
+* `message` log message
+* `data` optional dataobject that will be in the output
 
-## Release notes
+#### Returns
+Undefined.
 
-### 2.2.0 - Wrapping
+#### Remarks
+None.
+
+#### Example
+
+```javascript
+log.warning( 'Unexpected behaviour, recoverable, request will probably not fail', err );
+```
+---
+
+<a name="logInfo">
+### info( message, [ data ] )
+</a>
+
+#### Arguments
+
+* `message` log message
+* `data` optional dataobject that will be in the output
+
+#### Returns
+Undefined.
+
+#### Remarks
+None.
+
+#### Example
+
+```javascript
+log.info( 'Setup was successful' );
+```
+---
+
+<a name="logDebug">
+### debug( message, [ data ] )
+</a>
+
+#### Arguments
+
+* `message` log message
+* `data` optional dataobject that will be in the output
+
+#### Returns
+Undefined.
+
+#### Remarks
+None.
+
+#### Example
+
+```javascript
+log.debug( 'Incomming request', req );
+```
+---
+
+<a name="logTrace">
+### trace( message, [ data ] )
+</a>
+
+#### Arguments
+
+* `message` log message
+* `data` optional dataobject that will be in the output
+
+#### Returns
+Undefined.
+
+#### Remarks
+None.
+
+#### Example
+
+```javascript
+log.trace( 'Session resolved', session );
+```
+---
+
+<a name="getEntries">
+### getEntries( [ componentName ] )
+</a>
+If the memoryJson writer is used it is possible to iterate through the logs that have been written. This might be useful in tests.
+
+#### Arguments
+
+* `componentName` optional, name of component to get logs from
+
+#### Returns
+Undefined.
+
+#### Remarks
+None.
+
+#### Example
+
+```javascript
+log.info( 'Incomming request' );
+assert.equal( log.getEntries()[ 0 ].message, 'Incomming request' );
+```
+---
+
+<a name="logReset">
+### reset()
+</a>
+If the memoryJson writer is used it is possible to reset the log-store.
+
+#### Arguments
+None.
+
+#### Returns
+Undefined.
+
+#### Remarks
+None.
+
+#### Example
+
+```javascript
+log.info( 'Incomming request' );
+log.reset();
+assert.equal( log.getEntries()[ 0 ].length, 0 );
+```
+---

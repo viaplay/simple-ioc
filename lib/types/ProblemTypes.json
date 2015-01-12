@@ -1,0 +1,6 @@
+{
+	"notRegistered": "notRegistered",
+	"cyclicDependency": "cyclicDependency",
+	"dependencyNotRegistered": "dependencyNotRegistered",
+	"dependencyNotResolvable": "dependencyNotResolvable"
+}
