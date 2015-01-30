@@ -996,31 +996,57 @@ Only injectable components that has not yet been resolved can be removed.
 // ./index.js
 var assert = require( 'assert' ); 
 module.exports = require( 'simple-ioc' )
-	.getContainer()
+    .getContainer()
     .registerInjectable( {
-    	module1: function( pub, callback ) {
+        module1: function( pub, callback ) {
             setTimeout( function() {
-            	pub.value = 'val1';
-            	callback();
+                pub.value = 'val1';
+                callback();
             }, 500 );
         },
         module2: function( pub, module1 ) {
-        	pub.value = module1.value;
+            pub.value = module1.value;
         }
     } )
     .resolveAllAndInject( function() {
-		console.log( 'Application started' );
+        console.log( 'Application started' );
     } );
 ```
 ```javascript
 // ./tests/system/test.js
 var container = require( '../../../index.js' )
-	.removeRegistered( 'module1' )
+    .removeRegistered( 'module1' )
     .registerResolved( {
-    	module1: { value: 'newVal1' }
+        module1: { value: 'newVal1' }
     } )
     .injectAfterResolveAll( function( assert, module2 ) {
-    	assert.equal( module2.value, 'newVal1' );
+        assert.equal( module2.value, 'newVal1' );
+    } );
+```
+
+### transfer( name )
+EXPERIMENTAL! Used to transfer components from one application that has started with resolveAllAndInject
+
+#### Arguments
+* name - the identifying name of the component to transfer
+
+#### Returns
+An injectable functions with that callbacks the component
+
+#### Remarks
+None.
+
+#### Example
+```javascript
+// ./index.js
+var assert = require( 'assert' ); 
+module.exports = require( 'simple-ioc' )
+    .getContainer()
+    .registerInjectable( {
+        moduleFromOtherApplication: require( 'otherApplication' ).transfer( 'moduleFromOtherApplication' )
+    } )
+    .resolveAllAndInject( function( moduleFromOtherApplication ) {
+        console.log( 'Application started' );
     } );
 ```
 
