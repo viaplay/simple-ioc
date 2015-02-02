@@ -207,8 +207,9 @@ var container = require( 'simple-ioc' )
 * [`inject( fn, [callback] )`](#inject)
 * [`registerResolvedIfSetting( settingKey, name, instance )`](#registerResolvedIfSetting)
 * [`registerInjectableIfSetting( settingKey, name, fn )`](#registerInjectableIfSetting)
-* [`autoRegisterPathInSetting( settingKey )`](#)
+* [`autoRegisterPathInSetting( settingKey )`](#autoRegisterPathInSetting)
 * [`removeRegistered( name )`](#removeRegistered)
+* [`export( name )`](#export)
 
 [log](#log)
 
@@ -413,7 +414,9 @@ var container = require( 'simple-ioc' ).getContainer()
 
 ***
 
+<a name="registerInjectable">
 ### registerInjectable( name, fn )
+</a>
 Registers an injectable component in the container, this method should normally be used when registering internal libraries which can use their own containers.
 
 #### Arguments
@@ -854,7 +857,7 @@ module.exports = require( 'simple-ioc' )
 ```
 
 ---
-<a name="inject">
+<a name="injectAfterResolveAll">
 ### injectAfterResolveAll( fn )
 </a>
 Specify a function that is injected after resolve all is complete, can be used in, for example, system tests.
@@ -900,7 +903,9 @@ var container = require( '../../../index.js' )
 
 ---
 
+<a name="registerResolvedIfSetting">
 ### registerResolvedIfSetting ( settingKey, name, instance )
+</a>
 Registers an resolved component if settings indicates it should be registered. Used for example when a component only should be used in certain environments.
 
 #### Arguments
@@ -927,7 +932,9 @@ var container = require( 'simple-ioc' ).getContainer()
 
 ***
 
+<a name="registerInjectableIfSetting">
 ### registerInjectableIfSetting( settingKey, name, fn )
+</a>
 Registers a injectable component if settings indicates it should be registered. Used for example when a component only should be used in certain environments.
 
 #### Arguments
@@ -954,7 +961,9 @@ var container = require( 'simple-ioc' ).getContainer()
 
 ***
 
+<a name="autoRegisterPathInSetting">
 ### autoRegisterPathInSetting( settingKey )
+</a>
 Auto registers path that is specified in the settings, can be used for example when different adapers are used in development and production.
 
 #### Arguments
@@ -979,7 +988,9 @@ var container = require( 'simple-ioc' ).getContainer()
 
 ***
 
+<a name="removeRegistered">
 ### removeRegistered( name )
+</a>
 Removes an injectable unresolved component from the container, main purpose is to change behaviour in system-tests after an application is started with 'resolveAllAndInject'.
 
 #### Arguments
@@ -1024,11 +1035,13 @@ var container = require( '../../../index.js' )
     } );
 ```
 
-### transfer( name )
-EXPERIMENTAL! Used to transfer components from one application that has started with resolveAllAndInject
+<a name="export">
+### export( name )
+</a>
+EXPERIMENTAL! Used to export components from one application that has started with resolveAllAndInject
 
 #### Arguments
-* name - the identifying name of the component to transfer
+* name - the identifying name of the component to export
 
 #### Returns
 An injectable functions with that callbacks the component
@@ -1043,7 +1056,7 @@ var assert = require( 'assert' );
 module.exports = require( 'simple-ioc' )
     .getContainer()
     .registerInjectable( {
-        moduleFromOtherApplication: require( 'otherApplication' ).transfer( 'moduleFromOtherApplication' )
+        moduleFromOtherApplication: require( 'otherApplication' ).export( 'moduleFromOtherApplication' )
     } )
     .resolveAllAndInject( function( moduleFromOtherApplication ) {
         console.log( 'Application started' );

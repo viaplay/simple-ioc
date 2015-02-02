@@ -1,5 +1,5 @@
 var assert = require( 'assert' );
-describe( 'lib/container.transfer', function() {
+describe( 'lib/container.export', function() {
 	var container1, container2, testVar = true;
 	before( function() {
 		container1 = require( '../../lib/container.js' )( require( '../../lib/log/log.js' ) )
@@ -17,10 +17,10 @@ describe( 'lib/container.transfer', function() {
 			} );
 		container2 = require( '../../lib/container.js' )( require( '../../lib/log/log.js' ) )
 			.registerInjectable( {
-				test2: container1.transfer( 'test2' )
+				test2: container1.export( 'test2' )
 			} );
 	} );
-	describe( 'transfer( name )', function() {
+	describe( 'export( name )', function() {
 		it( 'Should not have resolved test1', function() {
 			assert.ok( testVar );
 		} );
