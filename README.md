@@ -278,7 +278,7 @@ The default settings are:
 {
 	log: {
 		level: 0,
-		includeEnvironemtVariables: { env: 'NODE_ENV' },
+		includeEnvironmentVariables: { env: 'NODE_ENV' },
 		output: 'devNull'
 	}
 }
@@ -303,7 +303,7 @@ will result in the following settings
 {
 	log: {
 		level: 3,
-		includeEnvironemtVariables: { env: 'NODE_ENV' },
+		includeEnvironmentVariables: { env: 'NODE_ENV' },
 		output: 'consoleReadable'
 	}
 }
@@ -334,7 +334,7 @@ require( 'simple-ioc' ).setSettings( {
 {
 	log: {
 		level: 0,
-		includeEnvironemtVariables: { env: 'NODE_ENV' },
+		includeEnvironmentVariables: { env: 'NODE_ENV' },
 		output: 'devNull'
 	},
     key: 'value'
@@ -1082,7 +1082,7 @@ The ioc has a built in logger that can be used externaly as well. The logger bui
 
 In the log-settings you can specify envronment values that you would like to include in the log-objects
 ```javascript
-includeEnvironemtVariables: { enviro: 'ENV_NAME' }
+includeEnvironmentVariables: { enviro: 'ENV_NAME' }
 // Would include ENV_NAME as "enviro"
 ```
 
