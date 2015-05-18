@@ -57,7 +57,7 @@ module.exports = require( 'simple-ioc' )
     } );
 ```
 <a name="reservedDependencies">
-### Reseved dependencies
+### Reserved dependencies
 </a>
 Simple-ioc has a number of reserved dependencies that cannot be registered in containers, these are:
 
