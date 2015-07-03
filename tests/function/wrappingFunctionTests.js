@@ -1,4 +1,5 @@
 var assert = require( 'assert' );
+var path = require('path');
 describe( 'lib/ioc', function() {
 	var container;
 	before( function() {
@@ -42,7 +43,7 @@ describe( 'lib/ioc', function() {
 							assert.equal( args[ 0 ], 4 );
 							assert.equal( args[ 1 ], 2 );
 							assert.equal( context.result, 2 );
-							assert.equal( context.parentName, 'wrappingFunctionTests.js' );
+							assert.equal( path.basename( context.parentName ), 'wrappingFunctionTests.js' );
 						}
 						callback( function( err, result ) {
 							if( context.wrappedFunction === 'component1.asyncFunctionThatTakesSomeTime' )
@@ -73,7 +74,7 @@ describe( 'lib/ioc', function() {
 				} )
 				.registerInjectable( 'wrapper2', function( pub ) {
 					pub.intercept = function( context, args ) {
-						assert.equal( context.parentName, 'wrappingFunctionTests.js' );
+						assert.equal( path.basename( context.parentName ), 'wrappingFunctionTests.js' );
 						assert.equal( context.wrappedFunction, 'component2.func' );
 						assert.equal( args[ 0 ], 2 );
 						assert.equal( args[ 1 ], 1 );
