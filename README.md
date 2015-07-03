@@ -654,6 +654,7 @@ Files that contains the followin comments will be handeled different by autoRegi
 If omitFileLengthLogging is not set, the ioc will info log if files exceed 100 lines and warning log if files exceed 200 lines.
 
 Normally the ioc uses the name of the file as name of the component, but if the function is not anonymous, the name of the function is used.
+In case the name of the component is hyphenated (`some-component.js`), it will be camelCased when injected (`someComponent`).
 
 #### Example
 ```javascript

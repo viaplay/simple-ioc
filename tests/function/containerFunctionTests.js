@@ -65,6 +65,14 @@ describe( 'lib/container', function() {
 					callback();
 				} );
 		} );
+		it( 'Should convert hyphenated modules to camelCased when using autoRegisterPath', function( callback ) {
+			container.autoRegisterPath( './containerTestData/test3', true )
+				.resolve( 'hyphenatedModule', function( err, instance ) {
+					assert.equal( err, undefined );
+					assert.equal( 'hyphenated!', instance.value );
+					callback();
+				} );
+		} );
 		it( 'Should throw error if components are registered more than once', function() {
 			try {
 				container.autoRegisterPath( './containerTestData/test2' );
