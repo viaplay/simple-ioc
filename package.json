@@ -4,9 +4,10 @@
   "description": "Simple Inversion of Control for node.js",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --reporter spec --colors --recursive tests/unit && mocha --reporter spec --colors --recursive tests/function",
-    "test-unit": "mocha --reporter spec --colors --recursive tests/unit",
-    "test-function": "mocha --reporter spec --colors --recursive tests/function"
+    "test": "npm -s run test-unit && npm -s run test-function",
+    "test-unit": "echo ' --- Unit tests --- ' && node_modules/.bin/_mocha --reporter spec --colors --recursive tests/unit",
+    "test-function": "echo ' --- Function tests --- ' && node_modules/.bin/_mocha --reporter spec --colors --recursive tests/function",
+    "test-file": "node_modules/.bin/_mocha --reporter spec --colors --recursive $1"
   },
   "keywords": [
     "ioc",
@@ -20,9 +21,9 @@
   },
   "author": "Joakim J. Rapp, Viaplay",
   "license": "BSD",
-  "devDependencies": {
-    "mocha": "1.21.4"
-  },
   "readmeFilename": "README.md",
-  "gitHead": "cf000ad2b360e7956a8378008c736196347b5cbd"
+  "gitHead": "cf000ad2b360e7956a8378008c736196347b5cbd",
+  "devDependencies": {
+    "mocha": "^2.2.5"
+  }
 }
