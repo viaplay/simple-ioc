@@ -266,9 +266,10 @@ Variable amount of objects with settings, the settings will be merged with the e
 The ioc.
 
 #### Remarks
-The ioc has 4 built-in output-writers, these are
+The ioc has 5 built-in output-writers, these are
 
 * consoleJson - More or less console.log( JSON.stringify( logObject ) )
+* bunyanJson - Same idea of `consoleJson`, but you can use `bunyan` command to read pretty printed errors as an human.
 * consoleReadable - Logs in a readable format, with some coloring of level
 * devNull - writes nothing
 * memoryJson - writes to memory, which is searchable afterwards. This should never be used in production, only in tests.
@@ -309,6 +310,20 @@ will result in the following settings
 }
 */
 ```
+
+#### Bunyan Example
+[node-bunyan](https://github.com/trentm/node-bunyan) is a medium-complex logging solution, integration in `simple-ioc` is really minimal, and *completely* optional.
+To use the bunyan writer you have to add `bunyan` to your project dependencies.
+```javascript
+require( 'simple-ioc' ).setSettings(
+    {
+        log: {
+            output: 'bunyanJson'
+        }
+    }
+);
+```
+Then you can pipe the output of your program to `bunyan` command for pretty-print.
 
 ---
 <a name="getSettings">
