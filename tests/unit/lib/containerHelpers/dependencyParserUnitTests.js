@@ -24,8 +24,17 @@ describe( 'lib/dependencyParser', function() {
 	} );
 	describe( 'getDependencies', function() {
 		describe( 'parameters', function() {
-			it( 'Should have the correct parameters', function() {
+			it( 'Should have the correct parameters when using function()', function() {
 				var dependencies = dependencyParser.getDependencies( function( callback, parentName, pub, setup, p1, p2 ) {
+					var arr = [ p1, callback, pub ];
+				} );
+				assert.deepEqual( dependencies.parameters.map( function( parameter ) {
+					return parameter.name;
+				} ), [ 'callback', 'parentName', 'pub', 'setup', 'p1', 'p2' ] );
+			} );
+
+			it( 'Should have the correct parameters when using () =>', function() {
+				var dependencies = dependencyParser.getDependencies( ( callback, parentName, pub, setup, p1, p2 ) => {
 					var arr = [ p1, callback, pub ];
 				} );
 				assert.deepEqual( dependencies.parameters.map( function( parameter ) {
