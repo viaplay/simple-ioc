@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "npm -s run test-unit && npm -s run test-function",
-    "test-unit": "echo ' --- Unit tests --- ' && node_modules/.bin/_mocha --reporter spec --colors --recursive tests/unit",
-    "test-function": "echo ' --- Function tests --- ' && node_modules/.bin/_mocha --reporter spec --colors --recursive tests/function",
-    "test-file": "node_modules/.bin/_mocha --reporter spec --colors --recursive $1"
+    "test-unit": "echo ' --- Unit tests --- ' && node ./node_modules/mocha/bin/mocha --reporter spec --colors --recursive tests/unit",
+    "test-function": "echo ' --- Function tests --- ' && node ./node_modules/mocha/bin/mocha --reporter spec --colors --recursive tests/function",
+    "test-file": "node ./node_modules/mocha/bin/mocha --reporter spec --colors --recursive $1"
   },
   "keywords": [
     "ioc",
