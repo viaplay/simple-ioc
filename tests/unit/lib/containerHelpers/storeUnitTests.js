@@ -118,7 +118,7 @@ describe( 'lib/containerHelpers/store', function() {
 	describe( 'getAllResolvingProblems()', function() {
 		it( 'Should return all resolving problems', function() {
 			var problems = store.getAllResolvingProblems().sort( function( problem1, problem2 ) {
-				return problem1 < problem2 ? 1 : -1;
+				return problem1 < problem2 ? -1 : 1;
 			} );
 			assert.deepEqual( problems, [
 				{ name: 'injectable1', errors: [

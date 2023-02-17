@@ -23,6 +23,18 @@ describe( 'lib/dependencyParser', function() {
 		} );
 	} );
 	describe( 'getDependencies', function() {
+		describe( 'old node compatibility', function() {
+			it( 'function.toString() is different in node 10', function() {
+				// https://github.com/nodejs/node/issues/20355
+				var node9andBelowfunc = function () {};
+				node9andBelowfunc.toString = function() { return "function () {}"};
+				dependencyParser.getDependencies(node9andBelowfunc);
+
+				var node10andAbovefunc = function (){};
+				node10andAbovefunc.toString = function() { return "function() {}"};
+				dependencyParser.getDependencies(node10andAbovefunc);
+			} );
+		} );
 		describe( 'parameters', function() {
 			it( 'Should have the correct parameters', function() {
 				var dependencies = dependencyParser.getDependencies( function( callback, parentName, pub, setup, p1, p2 ) {
